@@ -1,0 +1,151 @@
+/**********************************************************************************************************
+*******************************************LIGHTBOX********************************************************
+**********************************************************************************************************/
+.loctek-lightbox
+{
+	position: fixed;
+	background-color: #fff;
+	z-index: 100;
+	padding: 0 !important;
+	left: 50%;
+	top: 50%;
+	overflow: hidden;
+	border: 7px solid #fff;
+	-webkit-touch-callout: none;
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+}
+
+.loctek-lightbox-left, .loctek-lightbox-right
+{
+	height: 100%;
+	width: 50%;
+	position:absolute;
+	top: 0;
+	left: 0;
+}
+
+.loctek-lightbox-right
+{
+	left: 50%;
+}
+
+.loctek-lightbox
+{
+	position: fixed;
+	background-color: #fff;
+	z-index: 100;
+	padding: 0 !important;
+	left: 50%;
+	top: 50%;
+	overflow: hidden;
+	border: 7px solid #fff;
+}
+
+
+.loctek-lightbox-cover
+{
+	position: fixed;
+	top: 0;
+	left: 0;
+	background-color: #000;
+	width: 100%;
+	height: 100%;
+	z-index: 99;
+}
+
+/**********************************************************************************************************
+********************************************SLIDER*********************************************************
+**********************************************************************************************************/
+.loctek-slider
+{
+	overflow: hidden;
+	position: relative;
+}
+
+.loctek-slider>*
+{
+	position: absolute;
+}
+
+.loctek-slider-controls
+{
+	position: absolute;
+	bottom: 50px;
+	left: 50%;
+}
+
+.loctek-slider-controls li
+{
+	cursor: pointer;
+	list-style-type: none;
+	display: inline-block;
+	zoom: 1;
+	*display: inline;
+	width: 12px;
+	height: 12px;
+	margin: 0 2px;
+	background-color: #aaa;
+	background-image: linear-gradient(bottom, rgb(232,232,232) 13%, rgb(217,217,217) 88%);
+	background-image: -o-linear-gradient(bottom, rgb(232,232,232) 13%, rgb(217,217,217) 88%);
+	background-image: -moz-linear-gradient(bottom, rgb(232,232,232) 13%, rgb(217,217,217) 88%);
+	background-image: -webkit-linear-gradient(bottom, rgb(232,232,232) 13%, rgb(217,217,217) 88%);
+	background-image: -ms-linear-gradient(bottom, rgb(232,232,232) 13%, rgb(217,217,217) 88%);
+	
+	background-image: -webkit-gradient(
+		linear,
+		left bottom,
+		left top,
+		color-stop(0.13, rgb(232,232,232)),
+		color-stop(0.88, rgb(217,217,217))
+	);
+	-webkit-border-radius: 6px;
+    border-radius: 6px;
+    border: 1px solid #c5c5c5;
+}
+
+.loctek-slider-controls li.active
+{
+	background: red;
+	border-color: #AA0D0D;
+}
+
+/**********************************************************************************************************
+********************************************TOOLTIP********************************************************
+**********************************************************************************************************/
+.loctek-tooltip
+{
+	position: fixed;
+	left: 0;
+	top: 0;
+	background-color: #fff;
+	border: 1px solid #333;
+	-webkit-box-shadow: inset 0px 0px 3px 2px #ccc;
+    box-shadow: inset 0px 0px 3px 2px #ccc;
+    -webkit-border-radius: 4px;
+    border-radius: 4px;
+    padding: 8px;
+    display: none;
+}
+
+.loctek-tooltip:after
+{
+	content: '';
+	position: absolute;
+	left: -16px;
+	top: 4px;
+	background-color: #fff;
+	-webkit-box-shadow: inset 0px 0px 3px 2px #ccc;
+    box-shadow: inset 0px 0px 3px 2px #ccc;
+    /*-webkit-border-radius: 4px;
+    border-radius: 4px;
+    padding: 8px;*/
+    width: 0;
+	height: 0;
+	border-top: 10px solid transparent;
+	border-bottom: 10px solid transparent;
+	border-right:15px solid #333;
+}
