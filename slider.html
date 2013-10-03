@@ -3,12 +3,26 @@
 <head>
 <meta charset="utf-8" />
 <title>Slider - Loctek</title> 
-<link rel="stylesheet" href="loctek.css" type="text/css" />
+<link rel="stylesheet" href="Loctek.css" type="text/css" />
 <script type="text/javascript" src="jquery-1.10.2.min.js"></script>
 <script type="text/javascript" src="Loctek.js"></script>
 <script type="text/javascript">
 $(function() {
-	Loctek.slider($('section'));
+	var imgs = $('img');
+	var imgcurrent = 0;
+	$.each(imgs, function() {
+		$("<img/>").attr("src", $(this).attr("src")).load(function() {
+			imgcurrent++;
+			if (imgs.length <= imgcurrent) init();
+	    });
+	});
+
+	function init()
+	{
+		var slider = Loctek.slider($('section'));
+		slider.nextButton($('#btnNext'));
+		slider.prevButton($('#btnPrev'));
+	}
 });
 </script>
 </head>
@@ -21,5 +35,7 @@ $(function() {
 		<article><img src="http://lorempixel.com/200/400/sports/4/" /></article>
 		<article><img src="http://lorempixel.com/200/400/sports/5/" /></article>
 	</section>
+	<input type="button" id="btnNext" value="Next" />
+	<input type="button" id="btnPrev" value="Previous" />
 </body>
 </html>

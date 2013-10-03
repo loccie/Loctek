@@ -94,7 +94,7 @@ function loctek_ticker(content)
 					else
 						return randomizeTickEvent();
 				}
-				
+
 				tickEl = randomizeTickEvent();
 			}
 			else if (_prevEl)
@@ -197,7 +197,7 @@ function loctek_slider(container, params)
 
 	//swipe
 	var _draggable = true;
-	var currentX, direction, pageY, canTouch;
+	var currentX, direction, pageY, canTouch, accumulatedX;
 	if( /Android|webOS|iPhone|iPad|iPod|BlackBerry/i.test(navigator.userAgent) )
 	{
 		var canTouch = false;
@@ -210,18 +210,31 @@ function loctek_slider(container, params)
 		   		jQueryEvent.preventDefault();
 		   		direction = currentX > e.pageX ? 'left' : 'right';
 
+		   		if (!accumulatedX)
+		   			accumulatedX = e.pageX;
+				else if (accumulatedX != 'block' && Math.abs(accumulatedX - e.pageX) > 30)
+			   	{
+			   		accumulatedX = 'block';
+			   	}
+
 		   		currentX = e.pageX;
 		   }
 		}
 		
-		function windowStop() {
-			if (!canTouch) return;
+		function windowStop(e) {
+			e.preventDefault();
 			pageY = canTouch = currentX = false;
 			$(window).unbind('touchmove touchend');
+
+   			if (direction == 'left' && accumulatedX == 'block')
+   				goTo(current()+1 >= children.length ? 0 : current()+1);
+   			else if (accumulatedX == 'block')
+				goTo(current() <= 0 ? children.length-1 : current()-1);
 		}
 		
 		$(container).bind('touchstart', function() {
 			pageY = window.event.touches[0].pageY;
+			accumulatedX = false;
 			canTouch = true;
 			$(window).bind('touchmove', windowMove).bind('touchend', windowStop);
 		});
@@ -230,9 +243,11 @@ function loctek_slider(container, params)
 	{
 		/*$(container).mousedown(function() {
 			if (!_draggable) return;
-			$(document).mousemove(function (event) {
-				if (!currentX) currentX = event.pageX;
-			}).mouseup(function(event) {
+			$(document).bind('mousemove' ,function (event) {
+				currentX = event.pageX;
+				console.log(currentX);
+			}).bind('mouseup', function(event) {
+				alert('up')
 				$(document).unbind('mousemove mouseup');
 			});
 		})*/
@@ -245,6 +260,7 @@ function loctek_slider(container, params)
 		if (width) $(container).width($(container).find(' :first-child').width());
 	}
 	
+	var _blockSlider = false;
 	var goTo = function(position)
 	{
 		if (position == current()) return;
@@ -267,7 +283,9 @@ function loctek_slider(container, params)
 			if(i < iMax)
 				$(children[i+1]).show().css({opacity : 1, left : $(container).width()}).animate({left : parseInt($(children[i+1]).css('margin-left')) + parseInt($(container).css('padding-left')) + parseInt($(children[i+1]).css('padding-left')) + 'px'}, timePerAnimation);
 			
+			_blockSlider = true;
 			$(children[i]).animate(animateOptions, timePerAnimation, function() {
+				_blockSlider = false;
 				i++;
 				if (i < iMax) aniRight(i);
 				current(current()+1);
@@ -282,8 +300,10 @@ function loctek_slider(container, params)
 			if (i-1 >= 0)
 				$(children[i-1]).css({opacity : 1, left : '-' + $(children[i-1]).outerWidth() + 'px'}).animate({opacity : 1, left : parseInt($(children[i]).css('margin-left')) + parseInt($(container).css('padding-left')) + parseInt($(children[i]).css('padding-left')) + 'px'}, timePerAnimation);
 			
+			_blockSlider = true;
 			if (i-1 >= 0)
 			$(children[i]).animate({opacity : 0, left : $(container).outerWidth() + 'px'}, timePerAnimation, function() {
+				_blockSlider = false;
 				i--;
 				iLeft++;
 				if (iLeft < iMax) aniLeft(i);
@@ -294,8 +314,8 @@ function loctek_slider(container, params)
 		if (goLeft) aniLeft(i); else aniRight(i);
 	}
 	var l = $(container).find('.loctek-slider-controls li');
-	l.bind('click', function() { goTo(l.index(this)); });
-	goTo(2);
+	l.bind('click', function() { if (_blockSlider) return; goTo(l.index(this)); });
+	//goTo(2);
 	
 	var _interval = false;
 	this.start = function(time)
@@ -303,6 +323,22 @@ function loctek_slider(container, params)
 		interval = setInterval(function () {
 			goTo(current()+1 >= children.length ? 0 : current()+1);
 		}, time);
+	}
+
+	this.nextButton = function(el)
+	{
+		$(el).on('click', function() {
+			if (_blockSlider) return;
+			goTo(current()+1 >= children.length ? 0 : current()+1);
+		});
+	}
+
+	this.prevButton = function(el)
+	{
+		$(el).on('click', function() {
+			if (_blockSlider) return;
+			goTo(current() <= 0 ? children.length-1 : current()-1);
+		});
 	}
 }
 
