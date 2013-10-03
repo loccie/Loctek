@@ -3,7 +3,118 @@ var Loctek =
 	lightbox : loctek_lightbox,
 	slider : function(container, params) { return new loctek_slider(container, params); },
 	validate : function(container) { return new validate(container); },
-	tooltip : loctek_tooltip
+	tooltip : loctek_tooltip,
+	ticker : loctek_ticker
+}
+
+function loctek_ticker(content)
+{
+	var realThis = this;
+
+	this.context = function()
+	{
+		return content;
+	}
+
+	var _direction = 'right';
+	this.direction = function(val)
+	{
+		if (typeof val == 'undefined')
+			return _direction;
+		else if (val == 'top' || val == 'bottom' || val == 'left')
+			_direction = val;
+		else
+			_direction = 'right';
+	}
+
+	var _random = false;
+	this.random = function(val)
+	{
+		if (typeof val == 'undefined')
+			return _random;
+		else
+			_random = val;
+	}
+
+	var _children = $(content).addClass('loctek-ticker').children().hide();
+	var _prevEl = false;
+	this.tick = function(moveTo)
+	{
+		$(moveTo).removeAttr('style');
+		switch (this.direction())
+		{
+			case 'right':
+				$(moveTo).show().css({left : '-' + $(moveTo).width() + 'px', opacity : 0}).animate({left : 0, opacity : 1}, 1200);
+				setMiddle(moveTo);
+				if (_prevEl) $(_prevEl).fadeOut(500);
+			break;
+			case 'left':
+				$(moveTo).show().css({right : '-' + $(moveTo).first().width() + 'px', opacity : 0}).animate({right : 0, opacity : 1}, 1200);
+				setMiddle(moveTo);
+				if (_prevEl) $(_prevEl).fadeOut(500);
+			break;
+			case 'top':
+				$(moveTo).show().css({bottom : '-' + $(moveTo).first().height() + 'px', opacity : 0}).animate({bottom : getMiddle(moveTo), opacity : 1}, 1200);
+				if (_prevEl) $(_prevEl).fadeOut(500);
+			break;
+			case 'bottom':
+				$(moveTo).show().css({top : '-' + $(moveTo).first().height() + 'px', opacity : 0}).animate({top : getMiddle(moveTo), opacity : 1}, 1200);
+				if (_prevEl) $(_prevEl).fadeOut(500);
+			break;
+		}
+		_prevEl = moveTo;
+
+		function setMiddle(el)
+		{
+			el.css({top : '50%', marginTop : '-' + parseInt($(el).height()/2) + 'px'});
+		}
+
+		function getMiddle(el)
+		{
+			return $(content).height()/2 - $(el).height()/2;
+		}
+	}
+
+	var _tickerInterval;
+	this.startTicker = function(time)
+	{
+		_tickerInterval = setInterval(tickerF, time);
+		tickerF();
+
+		function tickerF() {
+			var tickEl = false;
+			if (realThis.random())
+			{
+				function randomizeTickEvent()
+				{
+					var rand = Math.floor(Math.random()*_children.length);
+					console.log($(_children[rand]).index(), $(_prevEl).index());
+					if (typeof prevEl == 'undefined' || $(_children[rand]).index() != $(_prevEl).index())
+						return _children[rand];
+					else
+						return randomizeTickEvent();
+				}
+				
+				tickEl = randomizeTickEvent();
+			}
+			else if (_prevEl)
+			{
+				if($(_prevEl).next().length == 0)
+					tickEl = $(_children).first();
+				else
+					tickEl = $(_prevEl).next();
+			}
+			else
+				tickEl = $(_children).first();
+
+			realThis.tick(tickEl);
+		}
+	}
+
+	this.stopTicker = function()
+	{
+		clearInterval(_tickerInterval);
+	}
 }
 
 function loctek_tooltip(content)

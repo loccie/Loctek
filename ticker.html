@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Slider - Loctek</title> 
+<link rel="stylesheet" href="loctek.css" type="text/css" />
+<script type="text/javascript" src="jquery-1.10.2.min.js"></script>
+<script type="text/javascript" src="Loctek.js"></script>
+<script type="text/javascript">
+$(function() {
+	var ticker = new Loctek.ticker($('section'));
+	ticker.direction('bottom');
+	ticker.random(true);
+	ticker.startTicker(1500);
+	setTimeout(function() {ticker.stopTicker()}, 20000);
+});
+</script>
+<style type="text/css">
+section
+{
+	width: 700px;
+	margin: 0 auto;
+	height: 300px;
+	background-color: red;
+}
+
+body
+{
+	width: 100%;
+	text-align: center;
+}
+</style>
+</head>
+<body>
+	<section>
+		<article><img src="http://lorempixel.com/600/200/sports/1/" /></article>
+		<article><img src="http://lorempixel.com/300/200/sports/2/" /></article>
+		<article><img src="http://lorempixel.com/100/100/sports/3/" /><p>test test test test</p></article>
+		<article>some text some text some testkqdkqj mdjqsmk fdjsqmk fdskq fjdsmkqfj dkqs jkdmsq jfdmksq jfdmkqs jfdmkqs jdjqsdjqsfm dkqsfm dsqdfkqs fmdqs jfq ms</article>
+	</section>
+</body>
+</html>
