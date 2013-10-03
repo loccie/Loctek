@@ -40,6 +40,7 @@ function loctek_tooltip(content)
 
 function loctek_slider(container, params)
 {
+	//fields
 	var _current = 0;
 	var current = function(val)
 	{
@@ -62,6 +63,8 @@ function loctek_slider(container, params)
 			_animationTime = val;
 	}
 	
+
+	//init
 	var children = $(container).children();
 	$(container).css({width : $(container).width(), height : $(children[0]).height()});
 	$(container).addClass('loctek-slider');
@@ -80,7 +83,51 @@ function loctek_slider(container, params)
 		$(children[i]).width($(container).innerWidth() - parseInt($(container).css('padding-left')) - parseInt($(container).css('padding-left')));
 		//$(children[i]).css("left", i==0 ? parseInt($(children[i]).css('margin-left')) + parseInt($(container).css('padding-left')) + parseInt($(children[i]).css('padding-left')) : $(children[i-1]).outerWidth() + 'px')
 	}
+
+	//swipe
+	var _draggable = true;
+	var currentX, direction, pageY, canTouch;
+	if( /Android|webOS|iPhone|iPad|iPod|BlackBerry/i.test(navigator.userAgent) )
+	{
+		var canTouch = false;
+		
+		function windowMove(jQueryEvent) {
+			if (!canTouch) return;
+			var e = window.event.touches[0];
+			if (Math.abs(pageY - e.pageY) < 15)
+			{
+		   		jQueryEvent.preventDefault();
+		   		direction = currentX > e.pageX ? 'left' : 'right';
+
+		   		currentX = e.pageX;
+		   }
+		}
+		
+		function windowStop() {
+			if (!canTouch) return;
+			pageY = canTouch = currentX = false;
+			$(window).unbind('touchmove touchend');
+		}
+		
+		$(container).bind('touchstart', function() {
+			pageY = window.event.touches[0].pageY;
+			canTouch = true;
+			$(window).bind('touchmove', windowMove).bind('touchend', windowStop);
+		});
+	}
+	else
+	{
+		/*$(container).mousedown(function() {
+			if (!_draggable) return;
+			$(document).mousemove(function (event) {
+				if (!currentX) currentX = event.pageX;
+			}).mouseup(function(event) {
+				$(document).unbind('mousemove mouseup');
+			});
+		})*/
+	}
 	
+	//methods
 	var adjustSize = function(height, width)
 	{
 		if (height) $(container).height($(container).find(' :first-child').height());
@@ -137,6 +184,7 @@ function loctek_slider(container, params)
 	}
 	var l = $(container).find('.loctek-slider-controls li');
 	l.bind('click', function() { goTo(l.index(this)); });
+	goTo(2);
 	
 	var _interval = false;
 	this.start = function(time)
