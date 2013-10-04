@@ -16,6 +16,17 @@ $(function() {
 });
 </script>
 <style type="text/css">
+header
+,nav
+,section
+,article
+,aside
+,footer
+,hgroup 
+{ 
+display: block;
+}
+
 section
 {
 	width: 700px;
@@ -32,6 +43,17 @@ body
 </style>
 </head>
 <body>
+	<!--[if lt IE 9]>
+<script>
+document.createElement('header');
+document.createElement('nav');
+document.createElement('section');
+document.createElement('article');
+document.createElement('aside');
+document.createElement('footer');
+document.createElement('hgroup');
+</script>
+<![endif]-->
 	<section>
 		<article><img src="http://lorempixel.com/600/200/sports/1/" /></article>
 		<article><img src="http://lorempixel.com/300/200/sports/2/" /></article>
