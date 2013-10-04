@@ -89,7 +89,7 @@ function loctek_ticker(content)
 				{
 					var rand = Math.floor(Math.random()*_children.length);
 					console.log($(_children[rand]).index(), $(_prevEl).index());
-					if (typeof prevEl == 'undefined' || $(_children[rand]).index() != $(_prevEl).index())
+					if (typeof prevEl == 'undefined' && $(_children[rand]).index() != $(_prevEl).index())
 						return _children[rand];
 					else
 						return randomizeTickEvent();
