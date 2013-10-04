@@ -7,6 +7,19 @@ var Loctek =
 	ticker : loctek_ticker
 }
 
+Loctek.core =
+{
+	parseProperty : loctek_core_parseProperty
+}
+
+function loctek_core_parseProperty(prop)
+{
+	if (typeof prop == 'undefined' || prop == 'auto')
+		return 0;
+	else
+		return parseInt(prop);
+}
+
 function loctek_ticker(content)
 {
 	var realThis = this;
@@ -278,10 +291,10 @@ function loctek_slider(container, params)
 			var animateOptions = (i < iMax) ?
 				{opacity : 0, left : '-' + $(children[i]).width() + 'px'}
 			:
-				{left : parseInt($(children[i]).css('margin-left')) + parseInt($(container).css('padding-left')) + parseInt($(children[i]).css('padding-left')) + 'px'};
+				{left : Loctek.core.parseProperty($(children[i]).css('margin-left')) + Loctek.core.parseProperty($(container).css('padding-left')) + Loctek.core.parseProperty($(children[i]).css('padding-left')) + 'px'};
 			
 			if(i < iMax)
-				$(children[i+1]).show().css({opacity : 1, left : $(container).width()}).animate({left : parseInt($(children[i+1]).css('margin-left')) + parseInt($(container).css('padding-left')) + parseInt($(children[i+1]).css('padding-left')) + 'px'}, timePerAnimation);
+				$(children[i+1]).show().css({opacity : 1, left : $(container).width()}).animate({left : Loctek.core.parseProperty($(children[i+1]).css('margin-left')) + Loctek.core.parseProperty($(container).css('padding-left')) + Loctek.core.parseProperty($(children[i+1]).css('padding-left')) + 'px'}, timePerAnimation);
 			
 			_blockSlider = true;
 			$(children[i]).animate(animateOptions, timePerAnimation, function() {
@@ -296,9 +309,8 @@ function loctek_slider(container, params)
 		{
 			var timePerAnimation = animationTime()/(iMax+1);
 			$(children[i]).show();
-			
 			if (i-1 >= 0)
-				$(children[i-1]).css({opacity : 1, left : '-' + $(children[i-1]).outerWidth() + 'px'}).animate({opacity : 1, left : parseInt($(children[i]).css('margin-left')) + parseInt($(container).css('padding-left')) + parseInt($(children[i]).css('padding-left')) + 'px'}, timePerAnimation);
+				$(children[i-1]).css({opacity : 1, left : '-' + $(children[i-1]).outerWidth() + 'px'}).animate({opacity : 1, left : Loctek.core.parseProperty($(children[i]).css('margin-left')) + Loctek.core.parseProperty($(container).css('padding-left')) + Loctek.core.parseProperty($(children[i]).css('padding-left')) + 'px'}, timePerAnimation);
 			
 			_blockSlider = true;
 			if (i-1 >= 0)
