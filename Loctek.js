@@ -101,7 +101,6 @@ function loctek_ticker(content)
 				function randomizeTickEvent()
 				{
 					var rand = Math.floor(Math.random()*_children.length);
-					console.log($(_children[rand]).index(), $(_prevEl).index());
 					if (typeof prevEl == 'undefined' && $(_children[rand]).index() != $(_prevEl).index())
 						return _children[rand];
 					else
@@ -164,6 +163,9 @@ function loctek_tooltip(content)
 
 function loctek_slider(container, params)
 {
+	if (typeof params == 'undefined') params = {};
+	if (typeof params.height == 'undefined') params.height = false;
+	
 	//fields
 	var _current = 0;
 	var current = function(val)
@@ -186,11 +188,11 @@ function loctek_slider(container, params)
 		else
 			_animationTime = val;
 	}
-	
 
 	//init
 	var children = $(container).children();
-	$(container).css({width : $(container).width(), height : $(children[0]).height()});
+	$(container).css({width : $(container).width()});
+	if (!params.height) $(container).css({height : $(children[0]).height()});
 	$(container).addClass('loctek-slider');
 	children.hide();
 	$(children[0]).show();
@@ -276,6 +278,24 @@ function loctek_slider(container, params)
 	var _blockSlider = false;
 	var goTo = function(position)
 	{
+		if (position == 'leftEnd')
+		{
+			_blockSlider = true;
+			$(children[current()]).animate({opacity : 0, left : $(children[current()]).width() + 'px'}, animationTime()/2);
+			$(children[children.length-1]).css({left : '-' + $(container).width() + 'px', opacity : 1}).show().animate({left : Loctek.core.parseProperty($(children[children.length-1]).css('margin-left')) + Loctek.core.parseProperty($(container).css('padding-left')) + Loctek.core.parseProperty($(children[children.length-1]).css('padding-left')) + 'px'}, animationTime()/2, function() { _blockSlider = false; });
+			current(children.length-1);
+			return;
+		}
+
+		if (position == 'rightEnd')
+		{
+			_blockSlider = true;
+			$(children[current()]).animate({opacity : 0, left : '-' + $(children[current()]).width() + 'px'}, animationTime()/2);
+			$(children[0]).css({left : $(container).width() + 'px', opacity : 1}).show().animate({left : Loctek.core.parseProperty($(children[0]).css('margin-left')) + Loctek.core.parseProperty($(container).css('padding-left')) + Loctek.core.parseProperty($(children[0]).css('padding-left')) + 'px'}, animationTime()/2, function() { _blockSlider = false; });
+			current(0);
+			return;
+		}
+		
 		if (position == current()) return;
 		var goLeft = position < current();
 		var iLeft = 0;
@@ -310,7 +330,7 @@ function loctek_slider(container, params)
 			var timePerAnimation = animationTime()/(iMax+1);
 			$(children[i]).show();
 			if (i-1 >= 0)
-				$(children[i-1]).css({opacity : 1, left : '-' + $(children[i-1]).outerWidth() + 'px'}).animate({opacity : 1, left : Loctek.core.parseProperty($(children[i]).css('margin-left')) + Loctek.core.parseProperty($(container).css('padding-left')) + Loctek.core.parseProperty($(children[i]).css('padding-left')) + 'px'}, timePerAnimation);
+				$(children[i-1]).show().css({opacity : 1, left : '-' + $(children[i-1]).outerWidth() + 'px'}).animate({opacity : 1, left : Loctek.core.parseProperty($(children[i]).css('margin-left')) + Loctek.core.parseProperty($(container).css('padding-left')) + Loctek.core.parseProperty($(children[i]).css('padding-left')) + 'px'}, timePerAnimation);
 			
 			_blockSlider = true;
 			if (i-1 >= 0)
@@ -333,7 +353,7 @@ function loctek_slider(container, params)
 	this.start = function(time)
 	{
 		interval = setInterval(function () {
-			goTo(current()+1 >= children.length ? 0 : current()+1);
+			goTo(current()+1 >= children.length ? 'rightEnd' : current()+1);
 		}, time);
 	}
 
@@ -341,7 +361,7 @@ function loctek_slider(container, params)
 	{
 		$(el).on('click', function() {
 			if (_blockSlider) return;
-			goTo(current()+1 >= children.length ? 0 : current()+1);
+			goTo(current()+1 >= children.length ? 'rightEnd' : current()+1);
 		});
 	}
 
@@ -349,7 +369,7 @@ function loctek_slider(container, params)
 	{
 		$(el).on('click', function() {
 			if (_blockSlider) return;
-			goTo(current() <= 0 ? children.length-1 : current()-1);
+			goTo(current() <= 0 ? 'leftEnd' : current()-1);
 		});
 	}
 }
