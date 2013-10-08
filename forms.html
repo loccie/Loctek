@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Slider - Loctek</title> 
+<link rel="stylesheet" href="Loctek.css" type="text/css" />
+<script type="text/javascript" src="jquery-1.10.2.min.js"></script>
+<script type="text/javascript" src="Loctek.js"></script>
+<script type="text/javascript">
+$(function() {
+	//Loctek.fixIE();
+
+	Loctek.feedback.form.required = 'The field <strong>$name</strong> is required';
+
+	var formValidate = new Loctek.form($('form'));
+	formValidate.line('<li>$error</li>');
+	formValidate.feedback($('ul'));
+});
+</script>
+<style type="text/css">
+header
+,nav
+,section
+,article
+,aside
+,footer
+,hgroup 
+{ 
+display: block;
+}
+</style>
+</head>
+<body>
+	<!--[if lt IE 9]>
+<script>
+document.createElement('header');
+document.createElement('nav');
+document.createElement('section');
+document.createElement('article');
+document.createElement('aside');
+document.createElement('footer');
+document.createElement('hgroup');
+</script>
+<![endif]-->
+<form>
+<ul>
+</ul>
+<input required="required" type="text" name="testtext1" placeholder="testtext1" />
+<input required="required" type="text" name="testtext1" placeholder="testtext1" />
+<input type="text" name="testtext2" placeholder="testtext2" />
+<input type="submit" name="testtext2" />
+</form>
+</body>
+</html>

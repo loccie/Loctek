@@ -4,12 +4,41 @@ var Loctek =
 	slider : function(container, params) { return new loctek_slider(container, params); },
 	validate : function(container) { return new validate(container); },
 	tooltip : loctek_tooltip,
-	ticker : loctek_ticker
+	ticker : loctek_ticker,
+	form : loctek_form
 }
 
 Loctek.core =
 {
 	parseProperty : loctek_core_parseProperty
+}
+
+Loctek.feedback =
+{
+	form :
+	{
+		required : false
+	}
+}
+
+Loctek.fixIE = function()
+{
+	//placeholder
+	var i = document.createElement('input');
+	if (!('placeholder' in i))
+	{
+		$('input, textarea').each(function() {
+			if (!this.attributes.placeholder) return true;
+			var val = this.attributes.placeholder.value;
+			$(this).val(val);
+			$(this).on('blur', function() {
+				$(this).val(val);
+			});
+			$(this).on('focus', function() {
+				$(this).val('');
+			});
+		});
+	}
 }
 
 function loctek_core_parseProperty(prop)
@@ -18,6 +47,66 @@ function loctek_core_parseProperty(prop)
 		return 0;
 	else
 		return parseInt(prop);
+}
+
+function loctek_form(content)
+{
+	var realThis = this;
+	this.errors = [];
+	this.elements = [];
+
+	var _line = false;
+	this.line = function(val)
+	{
+		if (typeof val == 'undefined')
+			return _line;
+		else
+			_line = val;
+	}
+
+	var _feedback = false;
+	this.feedback = function(val)
+	{
+		if (typeof val == 'undefined')
+			return _feedback;
+		else
+			_feedback = val;
+	}
+
+	this.addError = function(el, type)
+	{
+		type = Loctek.feedback.form[type].replace('$name', $(el).attr('name'));
+		var error = this.line() ? this.line().replace('$error', type) : type;
+		this.errors.push(error);
+	}
+	
+	this.showFeedback = function()
+	{
+		if (this.errors.length == 0) return true;
+		
+		$(realThis.feedback()).empty();
+		for (var i=0;i<this.errors.length;i++) {
+			$(realThis.feedback()).html((i==0?'':$(realThis.feedback()).html()) + this.errors[i]);
+		}
+
+		return false;
+	}
+
+	$(content).find('input, select, textarea').attr('formnovalidate', 'formnovalidate');
+	$(content).on('submit', function() {
+		realThis.errors = [];
+		$(content).find('input, select, textarea').each(function() { 
+			if ($(this).attr('required'))
+			{
+				if ($(this).val().length == 0)
+					realThis.addError(this, 'required');
+			}
+		});
+		
+		if (realThis.feedback())
+			if (realThis.showFeedback()) return true; else return false;
+		return false;
+	});
 }
 
 function loctek_ticker(content)
