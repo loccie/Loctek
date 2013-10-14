@@ -147,17 +147,22 @@
 	position: absolute;
 	left: -16px;
 	top: 4px;
-	background-color: #fff;
-	-webkit-box-shadow: inset 0px 0px 3px 2px #ccc;
-    box-shadow: inset 0px 0px 3px 2px #ccc;
-    /*-webkit-border-radius: 4px;
-    border-radius: 4px;
-    padding: 8px;*/
     width: 0;
 	height: 0;
 	border-top: 10px solid transparent;
 	border-bottom: 10px solid transparent;
 	border-right:15px solid #333;
+}
+
+
+
+.loctek-tooltip.right:after
+{
+	right: -16px;
+	left: auto;
+	top: 4px;
+	border-left:15px solid #333;
+	border-right: none;
 }
 
 /**********************************************************************************************************
