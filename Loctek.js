@@ -53,55 +53,68 @@ function loctek_core_parseProperty(prop)
 
 function loctek_gallery(content, params)
 {
-	if (typeof params == 'undefined') params = {};
+    if (typeof params == 'undefined') params = {};
     if (typeof params.viewCount == 'undefined') params.viewCount = 5;
     if (typeof params.viewType == 'undefined') params.viewCount = 'paging';
     if (typeof params.nextButton == 'undefined') params.nextButton = false;
     if (typeof params.prevButton == 'undefined') params.prevButton = false;
     if (typeof params.interval == 'undefined') params.interval = 5000;
     if (typeof params.permanent == 'undefined') params.permanent = '';
+    if (typeof params.buttonMode == 'undefined') params.buttonMode = false;
 
-	var children = $(content).children();
-	var currentPos = 0;
-	var blockAnimation = false;
+    var children = $(content).children();
+    var currentPos = 0;
+    var blockAnimation = false;
 
-	switch (params.viewType)
-	{
-		case 'fading':
-			children.hide().slice(0,params.viewCount).show();
+    switch (params.viewType)
+    {
+        case 'fading':
+            children.hide().slice(0,params.viewCount).show();
 
-			setInterval(function() {
-				$(content).children(':visible:not(' + params.permanent + ')').eq(Math.floor(Math.random()*($(content).children(':visible:not(' + params.permanent + ')').length-1-0+1)+0)).fadeOut('fast', function() {
-					var el = $(content).children(':hidden').eq(Math.floor(Math.random()*($(content).children(':hidden').length-1-0+1)+0));
-					el.insertAfter($(this));
-					el.fadeIn('slow');
-				});
-			}, params.interval);
-		break;
-		default:
-			children.hide().slice(0,params.viewCount).show();
+            setInterval(function() {
+                $(content).children(':visible:not(' + params.permanent + ')').eq(Math.floor(Math.random()*($(content).children(':visible:not(' + params.permanent + ')').length-1-0+1)+0)).fadeOut('fast', function() {
+                    var el = $(content).children(':hidden').eq(Math.floor(Math.random()*($(content).children(':hidden').length-1-0+1)+0));
+                    el.insertAfter($(this));
+                    el.fadeIn('slow');
+                });
+            }, params.interval);
+        break;
+        default:
+            children.hide().slice(0,params.viewCount).show();
+            $(params.prevButton).hide();
 
-			if (params.nextButton) $(params.nextButton).on('click', function() {
-				children.hide();
+            if (params.nextButton) $(params.nextButton).on('click', function() {
+                children.hide();
 
-				if (children.length >= currentPos + params.viewCount)
-					currentPos += params.viewCount;
-				
-				blockAnimation = true;
-				children.slice(currentPos, currentPos + params.viewCount).fadeIn('slow', function() { blockAnimation = false; });
-			});
+                if (children.length >= currentPos + params.viewCount)
+                    currentPos += params.viewCount;
+                
+                blockAnimation = true;
+                children.slice(currentPos, currentPos + params.viewCount).fadeIn('slow', function() { blockAnimation = false; });
 
-			if (params.prevButton) $(params.prevButton).on('click', function() {
-				children.hide();
-				if (currentPos >= params.viewCount)
-					currentPos -= params.viewCount;
-				
-				blockAnimation = true;
-				console.log(currentPos, params.viewCount)
-				children.slice(currentPos, currentPos+params.viewCount).fadeIn('slow', function() { blockAnimation = false; });
-			});
-		break;
-	}
+                if (params.buttonMode == 'hidden')
+                {
+                    if (currentPos > 0) $(params.prevButton).show();
+                    if (currentPos + params.viewCount >= children.length) $(params.nextButton).hide();
+                }
+            });
+
+            if (params.prevButton) $(params.prevButton).on('click', function() {
+                children.hide();
+                if (currentPos >= params.viewCount)
+                    currentPos -= params.viewCount;
+                
+                blockAnimation = true;
+                children.slice(currentPos, currentPos+params.viewCount).fadeIn('slow', function() { blockAnimation = false; });
+
+                if (params.buttonMode == 'hidden')
+                {
+                    if (currentPos == 0) $(params.prevButton).hide();console.log(currentPos, params.viewCount)
+                    if (children.length > params.viewCount) $(params.nextButton).show();
+                }
+            });
+        break;
+    }
 }
 
 function loctek_form(content)
@@ -288,8 +301,8 @@ function loctek_tooltip(content)
     }
 
     $('body').append('<div class="loctek-tooltip">' + $(content).html() + '</div>');
-   	var w = $(document).width()-$('.loctek-tooltip').width()-50;
-	
+    var w = $(document).width()-$('.loctek-tooltip').width()-50;
+    
     function initializeMove()
     {
         $('.loctek-tooltip').show();
@@ -303,9 +316,9 @@ function loctek_tooltip(content)
     {
         event.preventDefault();
         if (w > event.pageX)
-        	$('.loctek-tooltip').removeClass('right').css({left : parseInt(event.pageX+20) + 'px', top : parseInt(event.pageY-15) + 'px'});
+            $('.loctek-tooltip').removeClass('right').css({left : parseInt(event.pageX+20) + 'px', top : parseInt(event.pageY-15) + 'px'});
         else
-        	$('.loctek-tooltip').addClass('right').css({left : parseInt(event.pageX-$('.loctek-tooltip').width()-35) + 'px', top : parseInt(event.pageY-15) + 'px'});
+            $('.loctek-tooltip').addClass('right').css({left : parseInt(event.pageX-$('.loctek-tooltip').width()-35) + 'px', top : parseInt(event.pageY-15) + 'px'});
     }
 }
 
@@ -570,11 +583,11 @@ function loctek_lightbox(container, params)
         
         if (params.start)
         {
-        	children.eq(params.start).show();
-        	current = params.start;
+            children.eq(params.start).show();
+            current = params.start;
         }
         else
-        	$(container).find(' :first-child').show();       
+            $(container).find(' :first-child').show();       
     });
    
     var next = function()
