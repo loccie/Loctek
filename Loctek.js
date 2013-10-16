@@ -41,6 +41,13 @@ Loctek.fixIE = function()
             });
         });
     }
+
+    //background-size
+    var element = document.getElementById('backgroundSize');
+    //style = window.getComputedStyle(element);
+    //console.log(style.getPropertyValue('background-size'));
+    //for (var style in element.currentStyle) console.log(style)
+    console.log(document.styleSheets);
 }
 
 function loctek_core_parseProperty(prop)
@@ -288,6 +295,8 @@ function loctek_ticker(content)
 
 function loctek_tooltip(content)
 {
+    var realThis = this;
+   
     var _hover = false;
     this.hover = function(val)
     {
@@ -299,26 +308,51 @@ function loctek_tooltip(content)
             $(_hover).on('mouseover', initializeMove);
         }
     }
-
-    $('body').append('<div class="loctek-tooltip">' + $(content).html() + '</div>');
-    var w = $(document).width()-$('.loctek-tooltip').width()-50;
-    
-    function initializeMove()
+   
+    var _context = false;
+    this.context = function(val)
     {
-        $('.loctek-tooltip').show();
-        $(_hover).on('mousemove', moveTooltip).on('mouseout', function() {
-            $(_hover).off('mousemove');
-            $('.loctek-tooltip').hide();
-        });
+        if (typeof val == 'undefined')
+            return _context;
+        else
+        {
+            _context = val;
+        }
     }
    
+    var _width = false;
+    this.width = function(val)
+    {
+        if (typeof val == 'undefined')
+            return _width;
+        else
+        {
+            _width = val;
+           realThis.context().width(val);
+        }
+    }
+
+    this.context($('<div class="loctek-tooltip">' + $(content).html() + '</div>'));
+    $('body').append(this.context());
+    this.width($(document).width()-this.context().width()-50);
+   
+    function initializeMove()
+    {
+        realThis.context().show();
+        $(_hover).on('mousemove', moveTooltip).on('mouseout', function() {
+            $(_hover).off('mousemove');
+            realThis.context().hide();
+        });
+    }
+  
     function moveTooltip(event)
     {
         event.preventDefault();
-        if (w > event.pageX)
-            $('.loctek-tooltip').removeClass('right').css({left : parseInt(event.pageX+20) + 'px', top : parseInt(event.pageY-15) + 'px'});
+       
+        if (Loctek.core.parseProperty(realThis.context().outerWidth())+event.pageX < Loctek.core.parseProperty($(document).outerWidth(true)))
+            realThis.context().removeClass('right').css({left : parseInt(event.pageX+20) + 'px', top : parseInt(event.pageY-15) + 'px'});
         else
-            $('.loctek-tooltip').addClass('right').css({left : parseInt(event.pageX-$('.loctek-tooltip').width()-35) + 'px', top : parseInt(event.pageY-15) + 'px'});
+            realThis.context().addClass('right').css({left : parseInt(event.pageX-realThis.context().width()-35) + 'px', top : parseInt(event.pageY-15) + 'px'});
     }
 }
 
