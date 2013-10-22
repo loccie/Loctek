@@ -350,9 +350,9 @@ function loctek_tooltip(content)
         event.preventDefault();
        
         if (Loctek.core.parseProperty(realThis.context().outerWidth())+event.pageX < Loctek.core.parseProperty($(document).outerWidth(true)))
-            realThis.context().removeClass('right').css({left : parseInt(event.pageX+20) + 'px', top : parseInt(event.pageY-15) + 'px'});
+            realThis.context().removeClass('right').css({left : parseInt(event.pageX+20) + 'px', top : parseInt(event.pageY-Loctek.core.parseProperty($(document).scrollTop())-15) + 'px'});
         else
-            realThis.context().addClass('right').css({left : parseInt(event.pageX-realThis.context().width()-35) + 'px', top : parseInt(event.pageY-15) + 'px'});
+            realThis.context().addClass('right').css({left : parseInt(event.pageX-realThis.context().width()-35) + 'px', top : parseInt(event.pageY-Loctek.core.parseProperty($(document).scrollTop())-15) + 'px'});
     }
 }
 
