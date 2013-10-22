@@ -75,6 +75,26 @@ function loctek_gallery(content, params)
 
     switch (params.viewType)
     {
+        case 'fadingPage':
+            children.hide().slice(0,params.viewCount).show();
+            var max = params.viewCount-$(content).children('.permanent').length;
+            console.log($(content).children().length, params.viewCount)
+            if ($(content).children().length > params.viewCount)
+            setInterval(function() {
+                var rand = Math.floor(Math.random()*(max-0+1)+0);
+                var group = $(content).children(':hidden').slice(rand, rand+max);
+                if (group.length < max) $.merge(group, $(content).children(':hidden').slice(0, max-group.length));
+                if (group.length < max) $.merge(group, $(content).children(':visible:not(.permanent)').slice(0, max-group.length));
+
+                $(content).children(':visible:not(' + params.permanent + ')').fadeOut('fast', function() {
+                    //var el = group.eq(Math.floor(Math.random()*($(content).children(':hidden').length-1-0+1)+0));
+                    //el.insertAfter($(this));
+                    group.fadeIn('slow');
+                });
+
+                //if ($(content).children(':visible').length < params.viewCount) $(content).children(':hidden').slice(0, params.viewCount-$(content).children(':visible').length).fadeIn('slow');
+            }, params.interval);
+        break;
         case 'fading':
             children.hide().slice(0,params.viewCount).show();
 

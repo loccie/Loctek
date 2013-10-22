@@ -9,20 +9,20 @@
 <script type="text/javascript">
 $(function() {
 	//paging
-	Loctek.gallery($('article'), {
+	/*Loctek.gallery($('article'), {
 		viewCount : 10,
 		viewType : 'paging',
 		nextButton : $('#next'),
 		prevButton : $('#prev'),
 		buttonMode : 'hidden'
-	});
+	});*/
 
-	/*Loctek.gallery($('article'), {
-		viewCount : 7,
-		viewType : 'fading',
+	Loctek.gallery($('article'), {
+		viewCount : 8,
+		viewType : 'fadingPage',
 		permanent : '.permanent',
 		interval : 2000
-	});*/
+	});
 
 	$('img').click(function() {
 		Loctek.lightbox($('article'), {
@@ -62,10 +62,10 @@ document.createElement('hgroup');
 	<img class="permanent" src="http://lorempixel.com/200/200/sports/1/" />
 	<img class="permanent" src="http://lorempixel.com/200/200/sports/2/" />
 	<img class="permanent" src="http://lorempixel.com/200/200/sports/3/" />
-	<img class="permanent" src="http://lorempixel.com/200/200/sports/4/" />
+	<img src="http://lorempixel.com/200/200/sports/4/" />
 	<img src="http://lorempixel.com/200/200/sports/5/" />
 	<img src="http://lorempixel.com/200/200/sports/6/" />
-	<img class="permanent" src="http://lorempixel.com/200/200/sports/7/" />
+	<img src="http://lorempixel.com/200/200/sports/7/" />
 	<img src="http://lorempixel.com/200/200/sports/8/" />
 	<img src="http://lorempixel.com/200/200/sports/9/" />
 	<img src="http://lorempixel.com/200/200/sports/10/" />
@@ -73,22 +73,6 @@ document.createElement('hgroup');
 	<img src="http://lorempixel.com/200/200/nature/2/" />
 	<img src="http://lorempixel.com/200/200/nature/3/" />
 	<img src="http://lorempixel.com/200/200/nature/4/" />
-	<img src="http://lorempixel.com/200/200/nature/5/" />
-	<img src="http://lorempixel.com/200/200/sports/10/" />
-	<img src="http://lorempixel.com/200/200/nature/1/" />
-	<img src="http://lorempixel.com/200/200/nature/2/" />
-	<img src="http://lorempixel.com/200/200/nature/3/" />
-	<img src="http://lorempixel.com/200/200/nature/4/" />
-	<img src="http://lorempixel.com/200/200/nature/5/" />
-	<img src="http://lorempixel.com/200/200/sports/10/" />
-	<img src="http://lorempixel.com/200/200/nature/1/" />
-	<img src="http://lorempixel.com/200/200/nature/2/" />
-	<img src="http://lorempixel.com/200/200/nature/3/" />
-	<img src="http://lorempixel.com/200/200/nature/4/" />
-	<img src="http://lorempixel.com/200/200/nature/5/" />
-	<img src="http://lorempixel.com/200/200/nature/5/" />
-	<img src="http://lorempixel.com/200/200/nature/5/" />
-	<img src="http://lorempixel.com/200/200/nature/5/" />
 	<img src="http://lorempixel.com/200/200/nature/5/" />
 </article>
 <input type="button" value="next" id="next" />
