@@ -141,7 +141,7 @@
     display: none;
 }
 
-.loctek-tooltip:after
+.loctek-tooltip:before
 {
 	content: '';
 	position: absolute;
@@ -156,7 +156,7 @@
 
 
 
-.loctek-tooltip.right:after
+.loctek-tooltip.right:before
 {
 	right: -16px;
 	left: auto;

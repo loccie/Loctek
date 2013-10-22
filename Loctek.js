@@ -339,10 +339,13 @@ function loctek_tooltip(content)
     function initializeMove()
     {
         realThis.context().show();
-        $(_hover).on('mousemove', moveTooltip).on('mouseout', function() {
+        $(_hover).on('mousemove', moveTooltip).on('mouseout', movefunc);
+
+        function movefunc() {
+            realThis.context().removeClass('right');
             $(_hover).off('mousemove');
             realThis.context().hide();
-        });
+        }
     }
   
     function moveTooltip(event)
@@ -565,6 +568,7 @@ function loctek_slider(container, params)
     this.start = function(time)
     {
         interval = setInterval(function () {
+            if (_blockSlider) return;
             goTo(current()+1 >= children.length ? 'rightEnd' : current()+1);
         }, time);
     }
