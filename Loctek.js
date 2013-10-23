@@ -7,12 +7,19 @@ var Loctek =
     tooltip : loctek_tooltip,
     ticker : loctek_ticker,
     form : loctek_form,
-    gallery : loctek_gallery
+    gallery : loctek_gallery,
+    element : function(container) { return new loctek_element(container); }
 }
 
 Loctek.core =
 {
     parseProperty : loctek_core_parseProperty
+}
+
+Loctek.event =
+{
+    borderdown : loctek_event_borderdown,
+    borderover : loctek_event_borderover
 }
 
 Loctek.feedback =
@@ -56,6 +63,79 @@ function loctek_core_parseProperty(prop)
         return 0;
     else
         return parseInt(prop);
+}
+
+function loctek_event_borderover(content, func)
+{
+    $(content).on('mouseover', function(event) {
+        $(content).on('mousemove', mm);
+    }).on('mouseout', function() {
+        $(content).off('mousemove', mm);
+    });
+
+    function mm(event)
+    {
+        event.preventDefault();
+        var y = event.pageY - $(content).offset().top;
+        var x = event.pageX - $(content).offset().left;
+        var borderTop = Loctek.core.parseProperty($(content).css('border-top-width'));
+        var borderLeft = Loctek.core.parseProperty($(content).css('border-left-width'));
+        var borderRight = Loctek.core.parseProperty($(content).css('border-right-width'));
+        var borderBottom = Loctek.core.parseProperty($(content).css('border-bottom-width'));
+        var width = $(content).outerWidth();
+        var height = $(content).outerHeight();
+        var returnVar =
+        {
+            hover : {
+                top : y < borderTop,
+                right : x > width-borderRight,
+                bottom : y > height-borderBottom,
+                left : x < borderLeft
+            },
+            x : x,
+            y : y,
+            pageX : event.pageX,
+            pageY : event.pageY
+        };
+
+        if (returnVar.hover.top || returnVar.hover.right ||returnVar.hover.bottom || returnVar.hover.left)
+            func(returnVar);
+    }
+}
+
+function loctek_event_borderdown(content, func)
+{
+    $(content).on('mouseover', function(event) {
+        event.preventDefault();
+        console.log(event.pageX, event.pageY);
+    });
+}
+
+function loctek_element(content)
+{
+    this.draggable = function() {
+        /*var originalPos = $(content).css('position');
+        var originalLeft = $(content).css('left');
+        var originalTop = $(content).css('top');*/
+        var startTop, startLeft = 0;
+        $(content).on('mousedown', function(event) {
+            $(content).css({position : 'absolute', cursor : 'pointer'});
+            startTop = event.pageY - $(content).position().top;
+            startLeft = event.pageX - $(content).position().left;
+            $(content).on('mousemove', mm);
+        }).on('mouseup', function() {
+            $(content).off('mousemove', mm);
+        });
+
+        function mm(event)
+        {
+            event.preventDefault();
+            $(content).css({
+                left : event.pageX-startLeft,
+                top : event.pageY-startTop
+            });
+        }
+    }
 }
 
 function loctek_gallery(content, params)
