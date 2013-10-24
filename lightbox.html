@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8" />
-<title>Slider - Loctek</title> 
+<title>Lightbox - Loctek</title> 
 <link rel="stylesheet" href="Loctek.css" type="text/css" />
 <script type="text/javascript" src="jquery-1.10.2.min.js"></script>
 <script type="text/javascript" src="Loctek.js"></script>
@@ -19,9 +19,7 @@ $(function() {
 
 	function init()
 	{
-		var slider = Loctek.slider($('section'));
-		slider.nextButton($('#btnNext'));
-		slider.prevButton($('#btnPrev'));
+		Loctek.lightbox($('section'), {layout : 'tabs'});
 	}
 });
 </script>
@@ -35,6 +33,12 @@ header
 ,hgroup 
 { 
 display: block;
+}
+
+*
+{
+	padding: 0;
+	margin: 0;
 }
 </style>
 </head>
@@ -50,12 +54,12 @@ document.createElement('footer');
 document.createElement('hgroup');
 </script>
 <![endif]-->
-	<section style="width:200px">
-		<article><img src="http://lorempixel.com/200/400/sports/1/" /></article>
-		<article><img src="http://lorempixel.com/200/400/sports/2/" /></article>
-		<article><img src="http://lorempixel.com/200/400/sports/3/" /></article>
-		<article><img src="http://lorempixel.com/200/400/sports/4/" /></article>
-		<article><img src="http://lorempixel.com/200/400/sports/5/" /></article>
+	<section>
+		<article title="tab 1"><img src="http://lorempixel.com/500/400/sports/1/" /></article>
+		<article title="tab 2"><img src="http://lorempixel.com/500/400/sports/2/" /></article>
+		<article title="tab 3"><img src="http://lorempixel.com/500/400/sports/3/" /></article>
+		<article title="tab 4"><img src="http://lorempixel.com/500/400/sports/4/" /></article>
+		<article title="tab 5"><img src="http://lorempixel.com/500/400/sports/5/" /></article>
 	</section>
 	<input type="button" id="btnNext" value="Next" />
 	<input type="button" id="btnPrev" value="Previous" />

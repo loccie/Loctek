@@ -24,6 +24,28 @@
 	user-select: none;
 }
 
+.loctek-lightbox-tabs
+{
+	list-style-type: none;
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+}
+.loctek-lightbox-tabs li
+{
+	float: right;
+	margin-right: 5px;
+	display: inline-block;
+	-webkit-border-radius: 0px 0px 4px 4px;
+    border-radius: 0px 0px 4px 4px;
+    -webkit-box-shadow: 0px 2px 2px 1px #ccc;
+    box-shadow: 0px 2px 2px 1px #ccc;
+    background-color: #fff;
+    padding: 3px 8px;
+    cursor: pointer;
+}
+
 .loctek-lightbox-left, .loctek-lightbox-right
 {
 	height: 100%;

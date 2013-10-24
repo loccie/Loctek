@@ -13,8 +13,16 @@ $(function() {
 	Loctek.feedback.form.required = 'The field <strong>$name</strong> is required';
 
 	var formValidate = new Loctek.form($('form'));
-	formValidate.line('<li>$error</li>');
-	formValidate.feedback($('ul'));
+	formValidate.submit({
+		post : function(data) {
+			console.log(data);
+			$('#subby').val('Submit');
+		},
+		pre : function(){
+			$('#subby').val('Loading...');
+		}});
+	//formValidate.line('<li>$error</li>');
+	//formValidate.feedback($('ul'));
 });
 </script>
 <style type="text/css">
@@ -42,13 +50,13 @@ document.createElement('footer');
 document.createElement('hgroup');
 </script>
 <![endif]-->
-<form>
+<form action="uploadTest.php" method="post">
 <ul>
 </ul>
-<input required="required" type="text" name="testtext1" placeholder="testtext1" />
-<input required="required" type="text" name="testtext1" placeholder="testtext1" />
+<input required="required" type="text" name="testtext1" value="test" placeholder="testtext1" />
 <input type="text" name="testtext2" placeholder="testtext2" />
-<input type="submit" name="testtext2" />
+<input type="file" name="file" />
+<input type="submit" id="subby" value="Submit" name="testtext2" />
 </form>
 </body>
 </html>
