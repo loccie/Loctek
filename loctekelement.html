@@ -13,12 +13,10 @@
 <script type="text/javascript" src="Loctek.js"></script>
 <script type="text/javascript">
 $(function() {
-	var image = new Loctek.element('img');
-	image.draggable(true);
 
-	var el = new Loctek.element($('img'));
+	var el = new Loctek.element($('article'));
 	el.draggable();
-	el.resizable();
+	el.resizable({preserveAspectRatio : true});
 });
 </script>
 <style type="text/css">
@@ -33,6 +31,10 @@ header
 display: block;
 }
 
+article{
+	border: 5px solid pink;
+}
+
 img
 {
 	border: 20px solid black;
@@ -40,6 +42,7 @@ img
 	border-right-width: 8px;
 	border-top-width: 40px;
 	margin-top: 500px;
+	box-sizing: border-box;
 }
 </style>
 </head>
@@ -56,6 +59,7 @@ document.createElement('hgroup');
 </script>
 <![endif]-->
 	<div style="height: 2000px;width:50px;float: right;"></div>
+	<article style="height: 200px;width:500px;float: left"></article>
 	<img src="http://lorempixel.com/800/400/sports/1/" />
 </body>
 </html>

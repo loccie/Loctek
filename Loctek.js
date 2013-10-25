@@ -36,8 +36,8 @@ Loctek.fixIE = function()
     if (!('placeholder' in i))
     {
         $('input, textarea').each(function() {
-            if (!this.attributes.placeholder) return true;
-            var val = this.attributes.placeholder.value;
+            if (!this.propibutes.placeholder) return true;
+            var val = this.propibutes.placeholder.value;
             $(this).val(val);
             $(this).on('blur', function() {
                 $(this).val(val);
@@ -143,7 +143,7 @@ function loctek_element(content)
     this.draggable = function(params) {
         if (typeof params != 'object') params = {};
         if (typeof params.down == 'undefined') params.down = false;
-        if (typeof params.up == 'undefined') params.up = false
+        if (typeof params.up == 'undefined') params.up = false;
         /*var originalPos = $(content).css('position');
         var originalLeft = $(content).css('left');
         var originalTop = $(content).css('top');*/
@@ -158,7 +158,7 @@ function loctek_element(content)
             'user-select' : 'none',
             '-webkit-user-drag' : 'none',
             'user-drag' : 'none'}
-        ).attr('unselectable', 'on').attr('draggable', 'false').on('dragstart', function() { return false; }).find('*').attr('draggable', 'false').attr('unselectable', 'on');
+        ).prop('unselectable', 'on').prop('draggable', 'false').on('dragstart', function() { return false; }).find('*').prop('draggable', 'false').prop('unselectable', 'on');
 
         function mu(event) {
             event.stopPropagation();
@@ -188,8 +188,12 @@ function loctek_element(content)
         }
     }
 
-    this.resizable = function()
+    this.resizable = function(params)
     {
+        if (typeof params != 'object') params = {};
+        if (typeof params.down == 'undefined') params.down = false;
+        if (typeof params.up == 'undefined') params.up = false;
+        if (typeof params.preserveAspectRatio == 'undefined') params.preserveAspectRatio = false;
         var prevY = false;
         $(content).css({width : $(content).width(), height : $(content).height()});
 
@@ -210,19 +214,19 @@ function loctek_element(content)
             {
                 $(event.target).css('cursor', 'sw-resize');
             }
-            else if (event.hover.top)
+            else if (event.hover.top && !params.preserveAspectRatio)
             {
                 $(event.target).css('cursor', 'n-resize');
             }
-            else if (event.hover.right)
+            else if (event.hover.right && !params.preserveAspectRatio)
             {
                 $(event.target).css('cursor', 'e-resize');
             }
-            else if (event.hover.bottom)
+            else if (event.hover.bottom && !params.preserveAspectRatio)
             {
                 $(event.target).css('cursor', 's-resize');
             }
-            else if (event.hover.left)
+            else if (event.hover.left && !params.preserveAspectRatio)
             {
                 $(event.target).css('cursor', 'w-resize');
             }
@@ -251,33 +255,66 @@ function loctek_element(content)
 
             $(window).on('mouseup', windowUp);
             function windowUp() {
+                if (params.up) params.up();
                 realThis._resizing = false;
                 $(window).off('mousemove', resizeMove).off('mouseup', windowUp);
             }
 
             function resizeMove(event)
             {
+                if (params.preserveAspectRatio && !(hover.left && hover.top || hover.right && hover.top || hover.left && hover.bottom || hover.right && hover.bottom)) return;
+
+                var pageX = event.pageX - $(content).parent().offset().left;
+                var pageY = event.pageY - $(content).parent().offset().top;
+                var border = Loctek.core.parseProperty($(content).css('border-left-width')) + Loctek.core.parseProperty($(content).css('border-right-width'));
+                var border = 0;
+
+                console.log(pageX-prevX+border)
+                if (params.down) params.down();
+
                 event.preventDefault();
                 if (hover.right)
                 {
-                    $(content).width('+=' + parseInt(event.pageX-prevX));
-                    prevX = $(content)[0].offsetLeft + $(content).outerWidth();
+                    if (params.preserveAspectRatio && $(content).height() <= 0 && pageX-prevX+border <= 0) return;
+
+                    $(content).width('+=' + parseInt(pageX-prevX+border));
+
+                    if (params.preserveAspectRatio)
+                    {
+                        var amount = parseInt(pageX-prevX+border);
+                        $(content).height('+=' + amount);
+                        if (hover.top) $(content).css('top', '-=' + parseInt(pageX-prevX));
+                        prevY += amount;
+                    }
+
+                    prevX = $(content)[0].offsetLeft + $(content).width();
                 }
                 else if (hover.left)
                 {
-                    $(content).width('+=' + parseInt(prevX-event.pageX)).css('left', prevX-(prevX-event.pageX));
-                    prevX = prevX-(prevX-event.pageX);
-                }
+                    if (params.preserveAspectRatio && $(content).height() <= 0 && prevX-pageX+border <= 0) return;
+                    
+                    $(content).width('+=' + parseInt(prevX-pageX+border)).css('left', prevX-(prevX-pageX));
+                    console.log(prevX, pageX, border);
+                    if (params.preserveAspectRatio)
+                    {
+                        var amount = parseInt(prevX-pageX+border);
+                        $(content).height('+=' + amount);
+                        if (hover.top) $(content).css('top', '-=' + parseInt(prevX-pageX));
+                        prevY += amount;
+                    }
 
-                if (hover.bottom)
+                    prevX = prevX-(prevX-pageX);
+                }
+                
+                if (hover.bottom && !params.preserveAspectRatio)
                 {
-                    $(content).height('+=' + parseInt(event.pageY-prevY));
+                    $(content).height('+=' + parseInt(pageY-prevY+border));
                     prevY = $(content)[0].offsetTop + $(content).outerHeight();
                 }
-                else if (hover.top)
+                else if (hover.top && !params.preserveAspectRatio)
                 {
-                    $(content).height('+=' + parseInt(prevY-event.pageY)).css('top', prevY-(prevY-event.pageY));
-                    prevY = prevY-(prevY-event.pageY);
+                    $(content).height('+=' + parseInt(prevY-pageY+border)).css('top', prevY-(prevY-pageY));
+                    prevY = prevY-(prevY-pageY);
                 }
             }
         }
@@ -396,7 +433,7 @@ function loctek_form(content)
 
     this.addError = function(el, type)
     {
-        type = Loctek.feedback.form[type].replace('$name', $(el).attr('name'));
+        type = Loctek.feedback.form[type].replace('$name', $(el).prop('name'));
         var error = this.line() ? this.line().replace('$error', type) : type;
         this.errors.push(error);
     }
@@ -413,11 +450,11 @@ function loctek_form(content)
         return false;
     }
 
-    $(content).find('input, select, textarea').attr('formnovalidate', 'formnovalidate');
+    $(content).find('input, select, textarea').prop('formnovalidate', 'formnovalidate');
     $(content).on('submit', function() {
         realThis.errors = [];
         $(content).find('input, select, textarea').each(function() {
-            if ($(this).attr('required'))
+            if ($(this).prop('required'))
             {
                 if ($(this).val().length == 0)
                     realThis.addError(this, 'required');
@@ -437,9 +474,12 @@ function loctek_form(content)
         if (typeof val.post != 'undefined') _submit.post = val.post;
     }
 
-    $(content).find('input, select, textarea').attr('formnovalidate', 'formnovalidate');
-    var submit = $(content).find('input[type="submit"]').attr('type', 'button');
-    $(submit).on('click', function() {
+    $(content).find('input, select, textarea').prop('formnovalidate', 'formnovalidate');
+    var submit = $(content).find('input[type="submit"]').prop('type', 'button');
+    $(submit).on('click', submitFunc);
+    this.triggerSubmit = submitFunc;
+
+    function submitFunc() {
         var iframe = $('<iframe name="loctek-fileuploadframe" width="0" border="0" frameborder="0" height="0"></iframe>');
         $('body').append(iframe);
 
@@ -459,12 +499,12 @@ function loctek_form(content)
             iframe.remove();
         })
 
-        $(content).attr('target', 'loctek-fileuploadframe');
-        $(content).attr('enctype', 'multipart/form-data');
-        $(content).attr('encoding', 'multipart/form-data');
+        $(content).prop('target', 'loctek-fileuploadframe');
+        $(content).prop('enctype', 'multipart/form-data');
+        $(content).prop('encoding', 'multipart/form-data');
         $(content).submit();
         return false;
-    });
+    }
 }
 
 function loctek_ticker(content)
@@ -893,7 +933,7 @@ function loctek_lightbox(container, params)
         params.hideControllers = true;
         $(container).append('<ul class="loctek-lightbox-tabs" />');
         children.each(function() {
-            var title = $(this).attr('title');
+            var title = $(this).prop('title');
             $(this).removeAttr('title');
             var li = $('<li>' + title + '</li>');
             li.on('click', function() {
@@ -950,7 +990,7 @@ function loctek_lightbox(container, params)
    
     var close = function()
     {
-        $(container).removeClass('loctek-lightbox').attr('style', '');
+        $(container).removeClass('loctek-lightbox').prop('style', '');
         if (params.hideAfter) $(container).hide();
         
         children.hide();
