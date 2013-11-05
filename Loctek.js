@@ -139,6 +139,8 @@ function loctek_element(content)
 {
     realThis = this;
     _resizing = false;
+    this.ar = $(content).width()/$(content).height();
+    this.ar2 = $(content).height()/$(content).width();
 
     this.draggable = function(params) {
         if (typeof params != 'object') params = {};
@@ -163,7 +165,7 @@ function loctek_element(content)
         function mu(event) {
             event.stopPropagation();
             if (params.up) params.up();
-            $(window).off('mousemove', mm);
+            $(document).off('mousemove', mm);
         }
 
         function md(event)
@@ -172,7 +174,7 @@ function loctek_element(content)
             $(content).css({position : 'absolute', cursor : 'pointer'});
             startTop = event.pageY - $(content).position().top;
             startLeft = event.pageX - $(content).position().left;
-            $(window).on('mousemove', mm).on('mouseup', mu);
+            $(document).on('mousemove', mm).on('mouseup', mu);
         }
 
         function mm(event)
@@ -251,13 +253,13 @@ function loctek_element(content)
             else if (hover.top)
                 prevY = $(content)[0].offsetTop;
 
-            $(window).on('mousemove', resizeMove);
+            $(document).on('mousemove', resizeMove);
 
-            $(window).on('mouseup', windowUp);
+            $(document).on('mouseup', windowUp);
             function windowUp() {
                 if (params.up) params.up();
                 realThis._resizing = false;
-                $(window).off('mousemove', resizeMove).off('mouseup', windowUp);
+                $(document).off('mousemove', resizeMove).off('mouseup', windowUp);
             }
 
             function resizeMove(event)
@@ -266,10 +268,13 @@ function loctek_element(content)
 
                 var pageX = event.pageX - $(content).parent().offset().left;
                 var pageY = event.pageY - $(content).parent().offset().top;
-                var border = Loctek.core.parseProperty($(content).css('border-left-width')) + Loctek.core.parseProperty($(content).css('border-right-width'));
-                var border = 0;
 
-                console.log(pageX-prevX+border)
+                var border;
+                if (!params.borderFix)
+                    border = 0;
+                else
+                    border = Loctek.core.parseProperty($(content).css('border-left-width')) + Loctek.core.parseProperty($(content).css('border-right-width'));
+
                 if (params.down) params.down();
 
                 event.preventDefault();
@@ -281,9 +286,10 @@ function loctek_element(content)
 
                     if (params.preserveAspectRatio)
                     {
-                        var amount = parseInt(pageX-prevX+border);
+                        if (this.ar > 2) this.ar = 1;
+                        var amount = parseInt((pageX-prevX+border)*this.ar);
                         $(content).height('+=' + amount);
-                        if (hover.top) $(content).css('top', '-=' + parseInt(pageX-prevX));
+                        if (hover.top) $(content).css('top', '-=' + parseInt((pageX-prevX)));
                         prevY += amount;
                     }
 
@@ -294,10 +300,11 @@ function loctek_element(content)
                     if (params.preserveAspectRatio && $(content).height() <= 0 && prevX-pageX+border <= 0) return;
                     
                     $(content).width('+=' + parseInt(prevX-pageX+border)).css('left', prevX-(prevX-pageX));
-                    console.log(prevX, pageX, border);
+                    
                     if (params.preserveAspectRatio)
                     {
-                        var amount = parseInt(prevX-pageX+border);
+                        if (this.ar2 > 2) this.ar2 = 1;
+                        var amount = parseInt((prevX-pageX+border)*this.ar2);
                         $(content).height('+=' + amount);
                         if (hover.top) $(content).css('top', '-=' + parseInt(prevX-pageX));
                         prevY += amount;
@@ -341,7 +348,7 @@ function loctek_gallery(content, params)
         case 'fadingPage':
             children.hide().slice(0,params.viewCount).show();
             var max = params.viewCount-$(content).children('.permanent').length;
-            console.log($(content).children().length, params.viewCount)
+            
             if ($(content).children().length > params.viewCount)
             setInterval(function() {
                 var rand = Math.floor(Math.random()*(max-0+1)+0);
@@ -399,7 +406,7 @@ function loctek_gallery(content, params)
 
                 if (params.buttonMode == 'hidden')
                 {
-                    if (currentPos == 0) $(params.prevButton).hide();console.log(currentPos, params.viewCount)
+                    if (currentPos == 0) $(params.prevButton).hide();
                     if (children.length > params.viewCount) $(params.nextButton).show();
                 }
             });
@@ -578,6 +585,12 @@ function loctek_ticker(content)
     var _tickerInterval;
     this.startTicker = function(time)
     {
+        if (_children.length == 1)
+        {
+             realThis.tick($(_children).first());
+            return;
+        }
+        
         _tickerInterval = setInterval(tickerF, time);
         tickerF();
 
@@ -892,6 +905,7 @@ function loctek_slider(container, params)
     {
         interval = setInterval(function () {
             if (_blockSlider) return;
+            if (children.length < 2) return;
             goTo(current()+1 >= children.length ? 'rightEnd' : current()+1);
         }, time);
     }
@@ -923,6 +937,10 @@ function loctek_lightbox(container, params)
     if (typeof params.start == 'undefined') params.start = false;
     if (typeof params.close == 'undefined') params.close = false;
     if (typeof params.layout == 'undefined') params.layout = false;
+    if (typeof params.open == 'undefined') params.open = false;
+    if (typeof params.continuous == 'undefined') params.continuous = false;
+
+    $(container).click(function(event) { event.stopPropagation(); });
    
     var visibleChildren = $(container).children(':visible');
     $(container).hide();
@@ -954,7 +972,6 @@ function loctek_lightbox(container, params)
 
     $('.loctek-lightbox-cover').css('opacity', '0').animate({opacity : '0.8'}, 300, function() {
         $(container).show();
-       
         var w = params.width ? params.width : $(container).find(' :first-child').width();
         var h = params.height ? params.height : $(container).find(' :first-child').height();
         $(container).css({width : w, height : h});
@@ -967,12 +984,20 @@ function loctek_lightbox(container, params)
             current = params.start;
         }
         else
-            children.first().show();       
+            children.first().show();
+        
+        if (params.open) params.open();
     });
    
     var next = function()
     {
-        if (childrenCount-1 <= current) return false;
+        if (childrenCount-1 <= current) 
+        {
+            if (params.continuous)
+                current = -1;
+            else
+                return false;
+        }
         current++;
         children.hide();
         children.eq(current).show();
@@ -981,7 +1006,13 @@ function loctek_lightbox(container, params)
    
     var prev = function()
     {
-        if (current <= 0) return false;
+        if (current <= 0)
+        {
+            if (params.continuous)
+                current = children.length;
+            else
+                return false;
+        }
         current--;
         children.hide();
         children.eq(current).show();
@@ -996,8 +1027,18 @@ function loctek_lightbox(container, params)
         children.hide();
         visibleChildren.show();
 
-        $('.loctek-lightbox-left, .loctek-lightbox-right').remove();
-        $('.loctek-lightbox-cover').remove();
+        $('.loctek-lightbox-left, .loctek-lightbox-right, .loctek-lightbox-cover').remove();
+
+        if (params.layout == 'tabs')
+        {
+            var tabs = $('.loctek-lightbox-tabs li');
+            children.each(function(i) {
+                var tab = tabs.eq(i);
+                $(this).prop('title', tab.text());
+            });
+            
+            $('.loctek-lightbox-tabs').remove();
+        }
     }
     $('.loctek-lightbox-cover').on('click', close);
     if (params.close) $(params.close).on('click', close);
