@@ -19,7 +19,7 @@ $(function() {
 
 	function init()
 	{
-		var slider = Loctek.slider($('section'));
+		var slider = Loctek.slider($('ul'));
 		slider.start(2500);
 		slider.nextButton($('#btnNext'));
 		slider.prevButton($('#btnPrev'));
@@ -51,13 +51,13 @@ document.createElement('footer');
 document.createElement('hgroup');
 </script>
 <![endif]-->
-	<section style="width:800px">
-		<article><img src="http://lorempixel.com/800/400/sports/1/" /></article>
-		<article><img src="http://lorempixel.com/800/400/sports/2/" /></article>
-		<article><img src="http://lorempixel.com/800/400/sports/3/" /></article>
-		<article><img src="http://lorempixel.com/800/400/sports/4/" /></article>
-		<article><img src="http://lorempixel.com/800/400/sports/5/" /></article>
-	</section>
+	<ul style="width:800px">
+		<li><img src="http://lorempixel.com/800/400/sports/1/" /></li>
+		<li><img src="http://lorempixel.com/800/400/sports/2/" /></li>
+		<li><img src="http://lorempixel.com/800/400/sports/3/" /></li>
+		<li><img src="http://lorempixel.com/800/400/sports/4/" /></li>
+		<li><img src="http://lorempixel.com/800/400/sports/5/" /></li>
+	</ul>
 	<input type="button" id="btnNext" value="Next" />
 	<input type="button" id="btnPrev" value="Previous" />
 </body>

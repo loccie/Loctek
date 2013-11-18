@@ -8,11 +8,15 @@
 <script type="text/javascript" src="Loctek.js"></script>
 <script type="text/javascript">
 $(function() {
-	//Loctek.fixIE();
+	Loctek.fixIE();
 
+	//the error message for required; $name is the name attr of the element
 	Loctek.feedback.form.required = 'The field <strong>$name</strong> is required';
 
 	var formValidate = new Loctek.form($('form'));
+
+	/*
+	 * This is for an ajax call with files in it (aka a full httprequest via ajax)
 	formValidate.submit({
 		post : function(data) {
 			console.log(data);
@@ -20,9 +24,13 @@ $(function() {
 		},
 		pre : function(){
 			$('#subby').val('Loading...');
-		}});
-	//formValidate.line('<li>$error</li>');
-	//formValidate.feedback($('ul'));
+		}});*/
+	
+	//The html for a single error line; $error is the error message
+	formValidate.line('<li>$error</li>');
+
+	//The container element for the errors.
+	formValidate.feedback($('ul'));
 });
 </script>
 <style type="text/css">
@@ -53,8 +61,9 @@ document.createElement('hgroup');
 <form action="uploadTest.php" method="post">
 <ul>
 </ul>
-<input required="required" type="text" name="testtext1" value="test" placeholder="testtext1" />
-<input type="text" name="testtext2" placeholder="testtext2" />
+<input required="required" type="text" name="testtext1" placeholder="testtext1" />
+<input required="required" type="text" name="testtext2" placeholder="testtext2" />
+<input type="text" name="testtext3" placeholder="testtext3" />
 <input type="file" name="file" />
 <input type="submit" id="subby" value="Submit" name="testtext2" />
 </form>

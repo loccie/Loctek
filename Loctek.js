@@ -49,11 +49,26 @@ Loctek.fixIE = function()
     }
 
     //background-size
-    var element = document.getElementById('backgroundSize');
+    //var element = document.getElementById('backgroundSize');
     //style = window.getComputedStyle(element);
     //console.log(style.getPropertyValue('background-size'));
     //for (var style in element.currentStyle) console.log(style)
-    console.log(document.styleSheets);
+    var cssFiles = [];
+    var i = 0;
+    for (var stylesheet in document.styleSheets)
+        if (typeof document.styleSheets[stylesheet] == 'object')
+        {
+            cssFiles.push({href : document.styleSheets[stylesheet].href, rules : []});
+
+            for (var rule in document.styleSheets[stylesheet].cssRules)
+                for (var css in document.styleSheets[stylesheet].cssRules[rule])
+                {
+                    var obj = document.styleSheets[stylesheet].cssRules[rule][css];
+                    if (typeof obj == 'object' && obj != null) console.log(obj)//cssFiles[i].rules.push(obj);
+                }
+                    
+            i++;
+        } console.log(cssFiles)
 }
 
 function loctek_core_parseProperty(prop)
@@ -417,7 +432,7 @@ function loctek_gallery(content, params)
 function loctek_form(content)
 {
     var realThis = this;
-    /*this.errors = [];
+    this.errors = [];
     this.elements = [];
 
     var _line = false;
@@ -456,8 +471,8 @@ function loctek_form(content)
 
         return false;
     }
-
-    $(content).find('input, select, textarea').prop('formnovalidate', 'formnovalidate');
+    $(content).prop('novalidate', 'novalidate');
+    console.log(content.prop('novalidate'));
     $(content).on('submit', function() {
         realThis.errors = [];
         $(content).find('input, select, textarea').each(function() {
@@ -471,7 +486,8 @@ function loctek_form(content)
         if (realThis.feedback())
             if (realThis.showFeedback()) return true; else return false;
         return false;
-    });*/
+    });
+
 
     var _submit = {pre : false, post : false};
     this.submit = function(val)
@@ -481,9 +497,8 @@ function loctek_form(content)
         if (typeof val.post != 'undefined') _submit.post = val.post;
     }
 
-    $(content).find('input, select, textarea').prop('formnovalidate', 'formnovalidate');
     var submit = $(content).find('input[type="submit"]').prop('type', 'button');
-    $(submit).on('click', submitFunc);
+    if (submit.pre != false || submit.post != false) $(submit).on('click', submitFunc);
     this.triggerSubmit = submitFunc;
 
     function submitFunc() {
