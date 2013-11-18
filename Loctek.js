@@ -40,7 +40,8 @@ Loctek.fixIE = function()
             var val = this.attributes.placeholder.value;
             $(this).val(val);
             $(this).on('blur', function() {
-                $(this).val(val);
+                if ($(this).val() == '' || $(this).val() == val)
+                    $(this).val(val);
             });
             $(this).on('focus', function() {
                 $(this).val('');
@@ -64,11 +65,11 @@ Loctek.fixIE = function()
                 for (var css in document.styleSheets[stylesheet].cssRules[rule])
                 {
                     var obj = document.styleSheets[stylesheet].cssRules[rule][css];
-                    if (typeof obj == 'object' && obj != null) console.log(obj)//cssFiles[i].rules.push(obj);
+                    //if (typeof obj == 'object' && obj != null) //console.log(obj)//cssFiles[i].rules.push(obj);
                 }
                     
             i++;
-        } console.log(cssFiles)
+        } //console.log(cssFiles)
 }
 
 function loctek_core_parseProperty(prop)
@@ -472,13 +473,12 @@ function loctek_form(content)
         return false;
     }
     $(content).prop('novalidate', 'novalidate');
-    console.log(content.prop('novalidate'));
     $(content).on('submit', function() {
         realThis.errors = [];
-        $(content).find('input, select, textarea').each(function() {
-            if ($(this).prop('required'))
+       $(content).find('input, select, textarea').each(function() {
+            if (this.attributes.placeholder)
             {
-                if ($(this).val().length == 0)
+                if ($(this).val().length == 0 || $(this).val() == this.attributes.placeholder.value)
                     realThis.addError(this, 'required');
             }
         });
@@ -497,7 +497,8 @@ function loctek_form(content)
         if (typeof val.post != 'undefined') _submit.post = val.post;
     }
 
-    var submit = $(content).find('input[type="submit"]').prop('type', 'button');
+    $(content).find('input[type="submit"]')[0].attributes.type.value = "button";
+    var submit = $(content).find('input[type="submit"]');
     if (submit.pre != false || submit.post != false) $(submit).on('click', submitFunc);
     this.triggerSubmit = submitFunc;
 
