@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Multislider - Loctek</title> 
+<link rel="stylesheet" href="Loctek.css" type="text/css" />
+<script type="text/javascript" src="jquery-1.10.2.min.js"></script>
+<script type="text/javascript" src="Loctek.js"></script>
+<script type="text/javascript">
+$(function() {
+	var slider = Loctek.multislider($('section'), { width : '900px', height : 400 });
+	slider.nextButton($('#btnNext'));
+	slider.prevButton($('#btnPrev'));
+});
+</script>
+<style type="text/css">
+header
+,nav
+,section
+,article
+,aside
+,footer
+,hgroup 
+{ 
+display: block;
+}
+
+article
+{
+	float: left;
+	width: 800px;
+	height: 400px;
+}
+</style>
+</head>
+<body>
+	<!--[if lt IE 9]>
+<script>
+document.createElement('header');
+document.createElement('nav');
+document.createElement('section');
+document.createElement('article');
+document.createElement('aside');
+document.createElement('footer');
+document.createElement('hgroup');
+</script>
+<![endif]-->
+	<section>
+		<article><img src="http://lorempixel.com/800/400/sports/1/" /></article>
+		<article><img src="http://lorempixel.com/800/400/sports/2/" /></article>
+		<article><img src="http://lorempixel.com/800/400/sports/3/" /></article>
+		<article><img src="http://lorempixel.com/800/400/sports/4/" /></article>
+		<article><img src="http://lorempixel.com/800/400/sports/5/" /></article>
+	</section>
+	<input type="button" id="btnNext" value="Next" />
+	<input type="button" id="btnPrev" value="Previous" />
+</body>
+</html>

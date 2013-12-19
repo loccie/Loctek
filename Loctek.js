@@ -8,7 +8,8 @@ var Loctek =
     ticker : loctek_ticker,
     form : loctek_form,
     gallery : loctek_gallery,
-    element : function(container) { return new loctek_element(container); }
+    element : function(container) { return new loctek_element(container); },
+    multislider : function(container, params) { return new loctek_multislider(container, params); }
 }
 
 Loctek.core =
@@ -26,6 +27,63 @@ Loctek.feedback =
     form :
     {
         required : false
+    }
+}
+
+function loctek_multislider(container, params)
+{
+    if (typeof params == 'undefined') params = {};
+    if (typeof params.width == 'undefined') params.width = false;
+    if (typeof params.height == 'undefined') params.height = false;
+    if (typeof params.animationTime == 'undefined') params.animationTime = 1000;
+    if (typeof params.direction == 'undefined') params.direction = 'horizontal';
+
+    var current = 0;
+    var blockAnimation = false;
+    var widths = [];
+    var heights = [];
+    var realThis = this;
+
+    if (params.width) $(container).width(params.width);
+    if (params.height) $(container).height(params.height);
+
+    var subcontainer = $('<div />');
+    $(container).addClass('loctek-multislider').append(subcontainer.append($(container).children()));
+    $(subcontainer).children().each(function() {
+        $(subcontainer).width($(subcontainer).width() + $(this).width())
+        widths.push($(this).width());
+        heights.push($(this).height());
+    });
+
+    function getSize(pos, arr)
+    {
+        var r = 0;
+        for (var i=0;i<pos;i++) r += arr[pos];
+        return r;
+    }
+
+    this.goTo = function(pos) {
+        blockAnimation = true;
+        var animateThis =  params.direction == 'horizontal' ? {'left' : '-' + getSize(pos, widths)} : {'top' : '-' + getSize(pos, heights)};
+        $(subcontainer).animate(animateThis, params.animationTime, function() {
+            blockAnimation = false;
+        });
+    }
+
+    this.nextButton = function(el) {
+        $(el).on('click', function () {
+            if (blockAnimation) return;
+            current = current >= $(subcontainer).children().length-1 ? 0 : current+1;
+            realThis.goTo(current);
+        });
+    }
+
+    this.prevButton = function(el) {
+        $(el).on('click', function () {
+            if (blockAnimation) return;
+            current = current <= 0 ? $(subcontainer).children().length-1 : current-1;
+            realThis.goTo(current);
+        });
     }
 }
 
