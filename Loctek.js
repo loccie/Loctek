@@ -1052,7 +1052,9 @@ function loctek_lightbox(container, params)
         var h = params.height ? params.height : $(container).find(' :first-child').height();
         if (params.resize)
         {
-             $(container).css({width : w, height : h, marginLeft : '-' + parseInt(w/2) + 'px', marginTop : '-' + parseInt(h/2) + 'px'});
+            if (w > $(document).width() - 40) w = $(document).width() - 40;
+            if (h > $(document).height() - 60) h = $(document).height() - 60;
+            $(container).css({width : w, height : h, marginLeft : '-' + parseInt(w/2) + 'px', marginTop : '-' + parseInt(h/2) + 'px'});
         }
         else
         {
@@ -1075,6 +1077,9 @@ function loctek_lightbox(container, params)
 
     var setSize = function(w, h)
     {
+        if (w > $(document).width() - 40) w = $(document).width() - 40;
+        if (h > $(document).height() - 60) h = $(document).height() - 60;
+
         children.hide();
         $(container).css('opacity', 0).animate({opacity: 1, width : w, height : h, marginLeft : '-' + parseInt(w/2) + 'px', marginTop : '-' + parseInt(h/2) + 'px'}, params.animationTime, function() {
             children.eq(current).show();
