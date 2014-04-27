@@ -9,12 +9,15 @@ var Loctek =
     form : loctek_form,
     gallery : loctek_gallery,
     element : function(container) { return new loctek_element(container); },
-    multislider : function(container, params) { return new loctek_multislider(container, params); }
+    multislider : function(container, params) { return new loctek_multislider(container, params); },
+    fader : function(container, params) { return new loctek_fader(container); },
+    transparentslider : function(container, params) { return new loctek_transparentSlider(container); }
 }
 
 Loctek.core =
 {
-    parseProperty : loctek_core_parseProperty
+    parseProperty : loctek_core_parseProperty,
+    loadImages : loctek_core_loadimages
 }
 
 Loctek.event =
@@ -30,6 +33,80 @@ Loctek.feedback =
     }
 }
 
+function loctek_transparentSlider(container)
+{
+    var context = this;
+    var children;
+    var pos = 1;
+
+    var _height = false;
+    this.height = function(val)
+    {
+        console.log(val)
+        if (typeof val == 'undefined')
+            return _height;
+        else
+            _height = val;
+    }
+
+    var _width = false;
+    this.width = function(val)
+    {
+        if (typeof val == 'undefined')
+            return _width;
+        else
+            _width = val;
+    }
+
+    this.start = function(time) {
+        //init
+        children = $(container).children();
+        $(container).addClass('loctek-transparent-slider').height(context.height()).append('<div class="loctek-transparent-slider-container"></div>');
+        var sub = $(container).find('.loctek-transparent-slider-container');
+        sub.height(context.height()).append(children);
+        children.css('height', context.height() + 'px');
+        children.addClass('loctek-transparent-slider-item');
+        sub.css('margin-left', -(context.width()+context.width()/2));
+
+
+        if (children.length > 1)
+         setInterval(function() {
+            //sub.css('left', '-=' + (context.width()/2));
+            children.eq(pos-1).animate({ 'width' : 0 }, function() {
+                sub.append($(this).css('width', 'auto'));
+                pos = children.length-1==pos ? 0 : pos+1;
+            });
+        }, time);
+    }
+}
+
+function loctek_fader(container)
+{
+    var context = this;
+
+    var _random = false;
+    this.random = function(val)
+    {
+        if (typeof val == 'undefined')
+            return _random;
+        else
+            _random = val;
+    }
+
+    this.start = function(time) {
+        $(container).css('position', 'relative');
+        $(container).children().css('position', 'absolute');
+        if ($(container).children().length < 2) return;
+        $(container).children().hide().first().show();
+
+        setInterval(function() {
+            var otherchildren = $(container).children(':hidden');
+            $(container).children(':visible').fadeOut('slow');
+            otherchildren.eq(Math.floor(Math.random()*otherchildren.length)).fadeIn('slow');
+        }, time);
+    }
+}
+
 function loctek_multislider(container, params)
 {
     if (typeof params == 'undefined') params = {};
@@ -37,6 +114,9 @@ function loctek_multislider(container, params)
     if (typeof params.height == 'undefined') params.height = false;
     if (typeof params.animationTime == 'undefined') params.animationTime = 1000;
     if (typeof params.direction == 'undefined') params.direction = 'horizontal';
+    if (typeof params.stopBefore == 'undefined') params.stopBefore = 1;
+    if (typeof params.startBefore == 'undefined') params.startBefore = 0;
+    if (typeof params.start == 'undefined') params.start = false;
 
     var current = 0;
     var blockAnimation = false;
@@ -48,12 +128,14 @@ function loctek_multislider(container, params)
     if (params.height) $(container).height(params.height);
 
     var subcontainer = $('<div />');
+    if (params.height) $(subcontainer).height(params.height);
     $(container).addClass('loctek-multislider').append(subcontainer.append($(container).children()));
     $(subcontainer).children().each(function() {
-        $(subcontainer).width($(subcontainer).width() + $(this).width())
-        widths.push($(this).width());
-        heights.push($(this).height());
+        if (params.direction == 'horizontal') $(subcontainer).width($(subcontainer).width() + $(this).outerWidth(true))
+        widths.push($(this).outerWidth(true));
+        heights.push($(this).outerHeight(true));
     });
+     $(subcontainer).width(widths.length*960);
 
     function getSize(pos, arr)
     {
@@ -62,28 +144,48 @@ function loctek_multislider(container, params)
         return r;
     }
 
+    if (params.startBefore > 0)
+    {
+        console.log(getSize(params.startBefore, widths))
+        $(subcontainer).css({'left' : '-=' + getSize(params.startBefore, widths)})
+    }
+
     this.goTo = function(pos) {
         blockAnimation = true;
-        var animateThis =  params.direction == 'horizontal' ? {'left' : '-' + getSize(pos, widths)} : {'top' : '-' + getSize(pos, heights)};
+        var animateThis = params.direction == 'horizontal' ? {'left' : '-' + getSize(pos, widths)} : {'top' : '-' + getSize(pos, heights)};
         $(subcontainer).animate(animateThis, params.animationTime, function() {
             blockAnimation = false;
         });
     }
 
-    this.nextButton = function(el) {
-        $(el).on('click', function () {
+    this.start = function(time) {
+        setInterval(function() {
             if (blockAnimation) return;
-            current = current >= $(subcontainer).children().length-1 ? 0 : current+1;
+            current = current >= $(subcontainer).children().length-1-params.stopBefore+1 ? params.startBefore : current+1;
             realThis.goTo(current);
-        });
+        }, time);
+    }
+
+    this.nextButton = function(el) {
+        if (params.stopBefore != 1 && $(subcontainer).children().length <= params.stopBefore)
+            $(el).css('visibility', 'hidden');
+        else
+            $(el).on('click', function () {
+                if (blockAnimation) return;
+                current = current >= $(subcontainer).children().length-1-params.stopBefore+1 ? 0 : current+1;
+                realThis.goTo(current);
+            });
     }
 
     this.prevButton = function(el) {
-        $(el).on('click', function () {
-            if (blockAnimation) return;
-            current = current <= 0 ? $(subcontainer).children().length-1 : current-1;
-            realThis.goTo(current);
-        });
+        if (params.stopBefore != 1 && $(subcontainer).children().length <= params.stopBefore)
+            $(el).css('visibility', 'hidden');
+        else
+            $(el).on('click', function () {
+                if (blockAnimation) return;
+                current = current <= 0 ? $(subcontainer).children().length-1-params.stopBefore+1 : current-1;
+                realThis.goTo(current);
+            });
     }
 }
 
@@ -98,8 +200,7 @@ Loctek.fixIE = function()
             var val = this.attributes.placeholder.value;
             $(this).val(val);
             $(this).on('blur', function() {
-                if ($(this).val() == '' || $(this).val() == val)
-                    $(this).val(val);
+                $(this).val(val);
             });
             $(this).on('focus', function() {
                 $(this).val('');
@@ -108,26 +209,11 @@ Loctek.fixIE = function()
     }
 
     //background-size
-    //var element = document.getElementById('backgroundSize');
+    var element = document.getElementById('backgroundSize');
     //style = window.getComputedStyle(element);
     //console.log(style.getPropertyValue('background-size'));
     //for (var style in element.currentStyle) console.log(style)
-    var cssFiles = [];
-    var i = 0;
-    for (var stylesheet in document.styleSheets)
-        if (typeof document.styleSheets[stylesheet] == 'object')
-        {
-            cssFiles.push({href : document.styleSheets[stylesheet].href, rules : []});
-
-            for (var rule in document.styleSheets[stylesheet].cssRules)
-                for (var css in document.styleSheets[stylesheet].cssRules[rule])
-                {
-                    var obj = document.styleSheets[stylesheet].cssRules[rule][css];
-                    //if (typeof obj == 'object' && obj != null) //console.log(obj)//cssFiles[i].rules.push(obj);
-                }
-                    
-            i++;
-        } //console.log(cssFiles)
+    //console.log(document.styleSheets);
 }
 
 function loctek_core_parseProperty(prop)
@@ -491,7 +577,7 @@ function loctek_gallery(content, params)
 function loctek_form(content)
 {
     var realThis = this;
-    this.errors = [];
+    /*this.errors = [];
     this.elements = [];
 
     var _line = false;
@@ -530,13 +616,14 @@ function loctek_form(content)
 
         return false;
     }
-    $(content).prop('novalidate', 'novalidate');
+
+    $(content).find('input, select, textarea').prop('formnovalidate', 'formnovalidate');
     $(content).on('submit', function() {
         realThis.errors = [];
-       $(content).find('input, select, textarea').each(function() {
-            if (this.attributes.placeholder)
+        $(content).find('input, select, textarea').each(function() {
+            if ($(this).prop('required'))
             {
-                if ($(this).val().length == 0 || $(this).val() == this.attributes.placeholder.value)
+                if ($(this).val().length == 0)
                     realThis.addError(this, 'required');
             }
         });
@@ -544,8 +631,7 @@ function loctek_form(content)
         if (realThis.feedback())
             if (realThis.showFeedback()) return true; else return false;
         return false;
-    });
-
+    });*/
 
     var _submit = {pre : false, post : false};
     this.submit = function(val)
@@ -555,9 +641,9 @@ function loctek_form(content)
         if (typeof val.post != 'undefined') _submit.post = val.post;
     }
 
-    $(content).find('input[type="submit"]')[0].attributes.type.value = "button";
-    var submit = $(content).find('input[type="submit"]');
-    if (submit.pre != false || submit.post != false) $(submit).on('click', submitFunc);
+    $(content).find('input, select, textarea').prop('formnovalidate', 'formnovalidate');
+    var submit = $(content).find('input[type="submit"]').prop('type', 'button');
+    $(submit).on('click', submitFunc);
     this.triggerSubmit = submitFunc;
 
     function submitFunc() {
@@ -659,6 +745,7 @@ function loctek_ticker(content)
     var _tickerInterval;
     this.startTicker = function(time)
     {
+        if (_children.length == 0) return;
         if (_children.length == 1)
         {
              realThis.tick($(_children).first());
@@ -775,6 +862,7 @@ function loctek_slider(container, params)
     if (typeof params.height == 'undefined') params.height = false;
     if (typeof params.controlPosition == 'undefined') params.controlPosition = {};
     if (typeof params.inParent == 'undefined') params.inParent = false;
+    if (typeof params.animationTime == 'undefined') params.animationTime = false;
    
     //fields
     var _current = 0;
@@ -799,10 +887,11 @@ function loctek_slider(container, params)
             _animationTime = val;
     }
 
+    if (params.animationTime !== false)
+        animationTime(params.animationTime);
+
     //init
     var children = $(container).children();
-    $(container).css({width : $(container).width()});
-    if (!params.height) $(container).css({height : $(children[0]).height()});
     $(container).addClass('loctek-slider');
     children.hide();
     $(children[0]).show();
@@ -834,6 +923,25 @@ function loctek_slider(container, params)
         $(children[i]).width($(container).innerWidth() - parseInt($(container).css('padding-left')) - parseInt($(container).css('padding-left')));
         //$(children[i]).css("left", i==0 ? parseInt($(children[i]).css('margin-left')) + parseInt($(container).css('padding-left')) + parseInt($(children[i]).css('padding-left')) : $(children[i-1]).outerWidth() + 'px')
     }
+
+    $('#stappenplan').show();
+    $(container).css({width : $(container).width()});
+    var h;
+    if (!params.height)
+        h = $(children[0]).outerHeight();
+    else
+        h = params.height;
+
+    if (h > 0)
+    {
+        if ($(window).height() - 150 <= h)
+        {
+            $(container).height($(window).height()-150).css({ 'overflow-y' :  'auto', 'margin-right' : '20px' });
+        }
+        else
+            $(container).height(h);
+    }
+    $('#stappenplan').hide();
 
     //swipe
     var _draggable = true;
@@ -986,6 +1094,7 @@ function loctek_slider(container, params)
 
     this.nextButton = function(el)
     {
+        if (children.length < 2) { $(el).hide(); return; }
         $(el).on('click', function() {
             if (_blockSlider) return;
             goTo(current()+1 >= children.length ? 'rightEnd' : current()+1);
@@ -994,6 +1103,7 @@ function loctek_slider(container, params)
 
     this.prevButton = function(el)
     {
+        if (children.length < 2) { $(el).hide(); return; }
         $(el).on('click', function() {
             if (_blockSlider) return;
             goTo(current() <= 0 ? 'leftEnd' : current()-1);
@@ -1001,7 +1111,21 @@ function loctek_slider(container, params)
     }
 }
 
-function loctek_lightbox(container, params)
+function loctek_core_loadimages(container, callback)
+{
+     var imgs = $(container).find('img');
+        //imgs.hide();
+        var imgcurrent = 0;
+        $.each(imgs, function() { 
+            $("<img/>").attr("src", $(this).attr("src")).load(function() {
+                imgcurrent++;
+                if (imgs.length <= imgcurrent) { imgs.show(); callback(); }
+             }).error(function() {
+                imgcurrent++;
+                if (imgs.length <= imgcurrent) { imgs.show(); callback(); }
+             });
+        });
+}function loctek_lightbox(container, params)
 {
     if (typeof params == 'undefined') params = {};
     if (typeof params.hideAfter == 'undefined') params.hideAfter = true;
@@ -1015,6 +1139,9 @@ function loctek_lightbox(container, params)
     if (typeof params.continuous == 'undefined') params.continuous = false;
     if (typeof params.resize == 'undefined') params.resize = false;
     if (typeof params.animationTime == 'undefined') params.animationTime = 500;
+    if (typeof params.next == 'undefined') params.next = false;
+    if (typeof params.prev == 'undefined') params.prev = false;
+    if (typeof params.preload == 'undefined') params.preload = false;
 
     $(container).click(function(event) { event.stopPropagation(); });
    
@@ -1047,14 +1174,46 @@ function loctek_lightbox(container, params)
     var childrenCount = children.length;
 
     $('.loctek-lightbox-cover').css('opacity', '0').animate({opacity : '0.8'}, 300, function() {
+        if (params.preload)
+        {
+            $(container).append('<img src="ajax-loader.gif" class="loctek-lightbox-loader" />');
+        }
+
         $(container).show();
-        var w = params.width ? params.width : $(container).find(' :first-child').width();
-        var h = params.height ? params.height : $(container).find(' :first-child').height();
         if (params.resize)
         {
-            if (w > $(document).width() - 40) w = $(document).width() - 40;
-            if (h > $(document).height() - 60) h = $(document).height() - 60;
-            $(container).css({width : w, height : h, marginLeft : '-' + parseInt(w/2) + 'px', marginTop : '-' + parseInt(h/2) + 'px'});
+            if (params.preload)
+            {
+                container.css({ width : 60, height : 30 });
+                children.eq(params.start ? params.start : 0).prop('src', children.eq(params.start ? params.start : 0).data('src')).load(function() {
+                    $('.loctek-lightbox-loader').hide();
+                    $(this).show();
+
+                    var widthDef = !params.start ? $(container).find(' :first-child').width() : children.eq(params.start).width();
+                    var heightDef = !params.start ? $(container).find(' :first-child').height() : children.eq(params.start).height();
+                    var w = params.width ? params.width : widthDef;
+                    var h = params.height ? params.height : heightDef;
+                    ratio =  $(this).outerWidth()/$(this).outerHeight();
+                    if (w > h && w > $(window).width() - 40)
+                    {
+                        children.eq(params.start ? params.start : 0).width($(window).width() - 40);
+                        w = $(window).width() - 40;
+                        h = w/ratio;
+                    }
+                    
+                    if (h > $(window).height() - 60)
+                    {
+                        children.eq(params.start ? params.start : 0).height($(window).height() - 60);
+                        h = $(window).height() - 60;
+                        w = h*ratio;
+                    }
+
+                    children.eq(params.start ? params.start : 0).hide();
+                    $(container).css('opacity', 0).animate({opacity : 1, width : w, height : h, marginLeft : '-' + parseInt(w/2) + 'px', marginTop : '-' + parseInt(h/2) + 'px'}, params.animationTime, function() {
+                         children.eq(params.start ? params.start : 0).fadeIn('fast');
+                    });
+                });
+            }
         }
         else
         {
@@ -1069,21 +1228,62 @@ function loctek_lightbox(container, params)
             children.eq(params.start).show();
             current = params.start;
         }
-        else
+        else if (!params.preload)
             children.first().show();
         
         if (params.open) params.open();
     });
 
+    function setSizeFunc(el)
+    {
+        var w = children.eq(current).width();
+        var h = children.eq(current).height();
+
+        ratio =  $(el).outerWidth()/$(el).outerHeight();
+        if (w > h && w > $(window).width() - 40)
+        {
+            children.eq(params.start ? params.start : 0).width($(window).width() - 40);
+            w = $(window).width() - 40;
+            h = w/ratio;
+        }
+        
+        if (h > $(window).height() - 60)
+        {
+            children.eq(params.start ? params.start : 0).height($(window).height() - 60);
+            h = $(window).height() - 60;
+            w = h*ratio;
+        }
+        
+        $(el).hide();
+        $(container).css('opacity', 0).animate({opacity : 1, width : w, height : h, marginLeft : '-' + parseInt(w/2) + 'px', marginTop : '-' + parseInt(h/2) + 'px'}, params.animationTime, function() {
+            $(el).fadeIn('fast');
+        });
+    }
+
     var setSize = function(w, h)
     {
-        if (w > $(document).width() - 40) w = $(document).width() - 40;
-        if (h > $(document).height() - 60) h = $(document).height() - 60;
+        var attr = children.eq(current).prop('src');
 
-        children.hide();
-        $(container).css('opacity', 0).animate({opacity: 1, width : w, height : h, marginLeft : '-' + parseInt(w/2) + 'px', marginTop : '-' + parseInt(h/2) + 'px'}, params.animationTime, function() {
+        if (typeof attr !== 'undefined' && attr !== false && attr != '')
+        {
+            $(children).hide();
             children.eq(current).show();
-        });
+            setSizeFunc(children.eq(current));
+
+        }
+        else
+        {
+            $('.loctek-lightbox-loader').show();
+            container.css({ width : 60, height : 30, marginLeft : -30, marginTop : -15 });
+            $(children).hide();
+
+            children.eq(current).prop('src', children.eq(current).data('src')).load(function() {
+                $('.loctek-lightbox-loader').hide();
+                $(this).show();
+
+                setSizeFunc(this);
+            });
+        }
     }
    
     var next = function()
@@ -1105,7 +1305,16 @@ function loctek_lightbox(container, params)
             children.eq(current).show();
         }
     }
-    if(!params.hideControllers) $('.loctek-lightbox-right').on('click', next);
+    if (children.length < 2)
+    {
+        $('.loctek-lightbox-right').hide();
+        $(params.next).hide();
+    }
+    else
+    {
+        $(params.next).on('click', next);
+        if(!params.hideControllers) $('.loctek-lightbox-right').on('click', next);
+    }
    
     var prev = function()
     {
@@ -1125,17 +1334,28 @@ function loctek_lightbox(container, params)
             children.eq(current).show();
         }
     }
-    if(!params.hideControllers) $('.loctek-lightbox-left').on('click', prev);
+
+    if (children.length < 2)
+    {
+        $('.loctek-lightbox-left').hide();
+        $(params.prev).hide();
+    }
+    else
+    {
+        $(params.prev).on('click', prev);
+        if(!params.hideControllers) $('.loctek-lightbox-left').on('click', prev);
+    }
+
    
     var close = function()
     {
         $(container).removeClass('loctek-lightbox').removeAttr('style');
         if (params.hideAfter) $(container).hide();
         
-        children.hide();
+        if ($(container).is(':visible')) children.hide(); else  children.show();
         visibleChildren.show();
 
-        $('.loctek-lightbox-left, .loctek-lightbox-right, .loctek-lightbox-cover').remove();
+        $('.loctek-lightbox-left, .loctek-lightbox-right, .loctek-lightbox-cover, .loctek-lightbox-loader').remove();
 
         if (params.layout == 'tabs')
         {
@@ -1147,6 +1367,8 @@ function loctek_lightbox(container, params)
             
             $('.loctek-lightbox-tabs').remove();
         }
+
+        $(container).children().css({ 'width' : 'inherit', 'height' : 'inherit' });
     }
     $('.loctek-lightbox-cover').on('click', close);
     if (params.close) $(params.close).on('click', close);
