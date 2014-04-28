@@ -9,7 +9,7 @@
 <script type="text/javascript">
 $(function() {
 
-		Loctek.lightbox($('section'), {continuous: true, resize : true, preload : true});
+		
 	
 });
 </script>
@@ -51,10 +51,10 @@ document.createElement('hgroup');
 <![endif]-->
 	<section>
 		<img data-src="http://lorempixel.com/1300/900/sports/1/" />
-		<img data-src="http://lorempixel.com/300/80/sports/2/" />
-		<img data-src="http://lorempixel.com/600/500/sports/3/" />
+		<img data-src="http://lorempixel.com/400/1200/sports/2/" />
+		<img data-src="http://lorempixel.com/1900/1700/sports/2/" />
 	</section>
-	<input type="button" id="btnNext" value="Next" />
+	<input type="button" id="btnNext" value="Next" onclick="Loctek.lightbox($('section'), {continuous: true, resize : true, preload : true});" />
 	<input type="button" id="btnPrev" value="Previous" />
 </body>
 </html>
